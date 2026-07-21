@@ -1,0 +1,38 @@
+.text-type {
+  position: relative;
+  display: inline-block;
+  white-space: pre-wrap;
+}
+
+.text-type:is(div, p, h1, h2, h3, h4) {
+  display: block;
+  width: 100%;
+}
+
+.text-type__measure {
+  visibility: hidden;
+  white-space: inherit;
+}
+
+.text-type__content {
+  position: absolute;
+  inset: 0 auto auto 0;
+  white-space: inherit;
+}
+
+.text-type__cursor {
+  display: inline-block;
+  margin-left: 0.12em;
+  opacity: 1;
+  animation: text-type-cursor var(--cursor-blink-duration, 0.5s) ease-in-out infinite alternate;
+}
+
+.text-type__cursor--hidden { visibility: hidden; }
+
+@keyframes text-type-cursor {
+  to { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-type__cursor { animation: none; }
+}
