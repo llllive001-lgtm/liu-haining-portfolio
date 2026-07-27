@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUpRight,
@@ -6,7 +6,6 @@ import {
   Copy,
   EnvelopeSimple,
   GridFour,
-  Lightning,
   List,
   MagicWand,
   Phone,
@@ -17,96 +16,113 @@ import {
 import GlassSurface from "./components/GlassSurface";
 import Grainient from "./components/Grainient";
 import TextType from "./components/TextType";
+import BorderGlow from "./components/BorderGlow";
+import CountUp from "./components/CountUp";
+import CircularGallery from "./components/CircularGallery";
+import usePortfolioMotion from "./hooks/usePortfolioMotion";
 
 const projects = [
   {
     id: "01",
-    title: "获课",
-    type: "APP / PRODUCT DESIGN",
-    year: "2022–2023",
-    image: "/assets/project-huoke.jpg",
-    description: "面向管理培训行业的售课平台，从需求理解、原型推演到高保真 UI 与开发交付。",
+    title: "爱医",
+    type: "HEALTHCARE APP / UI/UX",
+    year: "2025–2026",
+    image: "/assets/project-aiyi-cover.jpg",
+    description: "围绕在线问诊、健康数据与家庭健康档案，打造更有陪伴感的移动医疗体验。",
   },
   {
     id: "02",
-    title: "伏羲云后台系统",
-    type: "WEB / DESIGN SYSTEM",
-    year: "2023–2025",
-    image: "/assets/project-fuxi.jpg",
-    description: "梳理 HOK 获客文化业务链路，统一高频列表、表单与数据展示场景。",
+    title: "获课",
+    type: "APP / PRODUCT DESIGN",
+    year: "2022–2023",
+    image: "/assets/project-huoke-cover.jpg",
+    description: "面向管理培训行业的售课平台，从需求理解、原型推演到高保真 UI 与开发交付。",
   },
   {
     id: "03",
-    title: "奥世美病例提交系统",
-    type: "WEB + APP / EXPERIENCE",
-    year: "2024–2025",
-    image: "/assets/project-aoshimei.jpg",
-    description: "为正畸牙科医生重构病例提交体验，降低制作周期并提升操作效率。",
+    title: "获客管理",
+    type: "DATA APP / PRODUCT DESIGN",
+    year: "2022–2023",
+    image: "/assets/project-huoke-admin-cover.jpg",
+    description: "面向讲师与运营团队的数据管理工具，整合浏览、脱敏、评估与业务跟进流程。",
   },
   {
     id: "04",
+    title: "伏羲云",
+    type: "WEB / DESIGN SYSTEM",
+    year: "2023–2025",
+    image: "/assets/project-fuxi-cover.jpg",
+    description: "梳理 HOK 获客文化业务链路，统一高频列表、表单与数据展示场景。",
+  },
+  {
+    id: "05",
+    title: "奥世美",
+    type: "WEB + APP / EXPERIENCE",
+    year: "2024–2025",
+    image: "/assets/project-aoshimei-cover.jpg",
+    description: "为正畸牙科医生重构病例提交体验，降低制作周期并提升操作效率。",
+  },
+  {
+    id: "06",
+    title: "艺术家",
+    type: "BRAND WEB / VISUAL DESIGN",
+    year: "2022",
+    image: "/assets/project-art-furniture-cover.jpg",
+    description: "以克制的空间语言与暖色材质表达，完成艺术家具品牌网站的视觉与浏览体验。",
+  },
+  {
+    id: "07",
     title: "OTD 3.0",
     type: "AUTOMOTIVE HMI / UI/UX",
-    year: "2024–2025",
-    image: "/assets/project-otd.jpg",
+    year: "2025",
+    image: "/assets/project-otd-cover.jpg",
     description: "面向海外市场的旗舰车载系统，负责从 0 到 1 的视觉系统与原型交互。",
+  },
+  {
+    id: "08",
+    title: "其他设计",
+    type: "MOTORCYCLE HMI / UI DESIGN",
+    year: "2025",
+    image: "/assets/project-moto-pno-cover.jpg",
+    description: "探索摩托车智能座舱界面，在骑行信息、车辆状态与快捷应用之间建立清晰层级。",
   },
 ];
 
 const capabilities = [
   {
     icon: GridFour,
-    index: "A.01",
-    title: "信息架构",
-    body: "把复杂业务拆成清晰路径，让结构、内容与操作优先级自然成立。",
+    index: "01",
+    category: "CORE",
+    title: "完整项目主导能力",
+    details: ["需求拆解与项目节奏规划", "跨阶段推进视觉落地", "把控质量、效率与交付结果"],
   },
   {
     icon: Stack,
-    index: "A.02",
-    title: "多端产品设计",
-    body: "覆盖 APP、Web 后台与跨屏产品，建立一致、可扩展的体验系统。",
+    index: "02",
+    category: "CORE",
+    title: "品牌与视觉系统搭建",
+    details: ["品牌语言与视觉概念定义", "组件规范与设计系统沉淀", "建立一致、可扩展的体验秩序"],
   },
   {
     icon: CarProfile,
-    index: "A.03",
-    title: "车载 HMI",
-    body: "理解驾驶场景、视线成本与海外用户习惯，平衡美感与安全效率。",
+    index: "03",
+    category: "SYSTEM",
+    title: "多端产品与车载 HMI",
+    details: ["APP、Web 后台与跨屏产品", "驾驶场景与视线成本分析", "从概念视觉到交互原型"],
   },
   {
     icon: MagicWand,
-    index: "A.04",
-    title: "视觉系统",
-    body: "从概念语言到组件规范，建立有识别度且能真实落地的视觉秩序。",
-  },
-  {
-    icon: Lightning,
-    index: "A.05",
-    title: "AI 辅助设计",
-    body: "用 AI 扩展灵感、视觉生产与原型验证，同时保持设计判断。",
+    index: "04",
+    category: "SYSTEM",
+    title: "AI 设计提效",
+    details: ["AI 辅助视觉探索", "高效生成与方案验证", "保持一致的设计判断"],
   },
   {
     icon: UsersThree,
-    index: "A.06",
-    title: "协作与交付",
-    body: "与产品和研发共同评估方案，推动走查、测试与上线验收。",
-  },
-];
-
-const experiences = [
-  {
-    company: "杭州市爱医问问智慧科技有限公司",
-    role: "产品设计",
-    time: "2025.11 — 至今",
-  },
-  {
-    company: "深圳市路之音科技有限公司",
-    role: "UI 设计师",
-    time: "2023.04 — 2025.06",
-  },
-  {
-    company: "深圳市获客教育科技有限公司",
-    role: "UI 设计师",
-    time: "2022.02 — 2023.02",
+    index: "05",
+    category: "SYSTEM",
+    title: "跨团队协作与交付",
+    details: ["产品与研发协同评估", "设计走查与开发验收", "推动方案按节点上线"],
   },
 ];
 
@@ -129,10 +145,38 @@ function TypeText({ text, as = "span", className = "", delay = 0, speed = 14, cu
   );
 }
 
+function MotionText({ text, as = "span", className = "", ...props }) {
+  const Component = as;
+  return (
+    <Component className={`motion-text ${className}`.trim()} aria-label={text} {...props}>
+      <span className="motion-text__inner" aria-hidden="true">{text}</span>
+    </Component>
+  );
+}
+
+function ResumeGlow({ children, className = "" }) {
+  return (
+    <BorderGlow
+      className={className}
+      edgeSensitivity={24}
+      glowColor="209 100 82"
+      backgroundColor="#081117"
+      borderRadius={0}
+      glowRadius={24}
+      glowIntensity={0.82}
+      coneSpread={23}
+      colors={["#f1f8ff", "#acd9ff", "#6ea9ff"]}
+      fillOpacity={0.2}
+    >
+      {children}
+    </BorderGlow>
+  );
+}
+
 function BrandMark() {
   return (
     <a className="brand" href="#top" aria-label="回到首页">
-      <TypeText text="LIU HAI NING DESIGN" className="brand-name" speed={22} />
+      <TypeText text="LIU HAI NING DESIGN" className="brand-name" delay={2050} speed={22} />
     </a>
   );
 }
@@ -197,11 +241,11 @@ function Header() {
             {open ? <X size={22} /> : <List size={22} />}
           </button>
           <nav className={open ? "nav is-open" : "nav"} aria-label="主导航">
-            <a href="#about" onClick={close}><TypeText text="ABOUT" delay={180} speed={24} /></a>
-            <a href="#work" onClick={close}><TypeText text="WORK" delay={230} speed={24} /></a>
-            <a href="#capabilities" onClick={close}><TypeText text="CAPABILITIES" delay={280} speed={24} /></a>
+            <a href="#about" onClick={close}><TypeText text="ABOUT" delay={2180} speed={24} /></a>
+            <a href="#work" onClick={close}><TypeText text="WORK" delay={2260} speed={24} /></a>
+            <a href="#capabilities" onClick={close}><TypeText text="CAPABILITIES" delay={2340} speed={24} /></a>
             <a className="nav-contact" href="#contact" onClick={close}>
-              <TypeText text="CONTACT" delay={330} speed={24} /> <ArrowUpRight size={15} />
+              <TypeText text="CONTACT" delay={2420} speed={24} /> <ArrowUpRight size={15} />
             </a>
           </nav>
         </div>
@@ -231,43 +275,48 @@ function Hero() {
 
       <div className="hero-layout frame">
         <h1 className="hero-title hero-title-left">
-          <TypeText text="Visual" delay={120} speed={42} />
-          <TypeText text="And Product" delay={320} speed={38} />
+          <TypeText className="hero-type-line" text="Visual" delay={2020} speed={58} />
+          <TypeText className="hero-type-line" text="And Product" delay={2220} speed={54} />
         </h1>
 
         <div className="hero-note">
-          <TypeText as="p" className="eyebrow" text="UI / UE · PRODUCT EXPERIENCE · AI" delay={520} speed={18} />
-          <TypeText as="p" text="Working at the intersection of product logic, visual systems and emerging tools — turning complex information into clear, memorable experiences." delay={700} speed={9} />
+          <TypeText as="p" className="eyebrow" text="UI / UE · PRODUCT EXPERIENCE · AI" delay={2520} speed={18} />
+          <TypeText as="p" text="Working at the intersection of product logic, visual systems and emerging tools — turning complex information into clear, memorable experiences." delay={2700} speed={9} />
         </div>
 
         <div className="hero-title-right">
-          <TypeText as="p" text="AI" delay={300} speed={70} />
-          <TypeText as="p" text="Designer" delay={470} speed={52} cursor />
-          <a href="#work"><TypeText text="VIEW SELECTED WORK" delay={860} speed={20} /> <ArrowDown size={17} /></a>
+          <TypeText as="p" className="hero-type-line" text="AI" delay={2180} speed={64} />
+          <TypeText
+            as="p"
+            className="hero-type-line"
+            text="Designer"
+            delay={2340}
+            speed={58}
+            cursor
+            cursorCharacter="|"
+            cursorClassName="hero-type-cursor"
+          />
+          <a href="#work"><TypeText text="VIEW SELECTED WORK" delay={2920} speed={20} /> <ArrowDown size={17} /></a>
         </div>
 
         <div className="hero-coordinate" aria-hidden="true">
-          <TypeText text="PORTFOLIO / 2026" delay={620} speed={20} />
-          <TypeText text="30°16′N 120°09′E" delay={720} speed={20} />
+          <TypeText text="PORTFOLIO / 2026" delay={2540} speed={20} />
+          <TypeText text="30°16′N 120°09′E" delay={2660} speed={20} />
         </div>
       </div>
       <div className="hero-status">
         <span className="status-dot" />
-        <TypeText text="AVAILABLE FOR NEW OPPORTUNITIES" delay={900} speed={18} />
+        <TypeText text="AVAILABLE FOR NEW OPPORTUNITIES" delay={3100} speed={18} />
       </div>
     </section>
   );
 }
 
-function SectionHeading({ index, kicker, title, description }) {
+function SectionHeading({ title, label }) {
   return (
-    <div className="section-heading">
-      <TypeText as="div" className="section-number" text={`/${index}`} speed={24} />
-      <div>
-        <TypeText as="p" className="eyebrow" text={kicker} speed={16} />
-        <TypeText as="h2" text={title} delay={90} speed={22} />
-      </div>
-      {description && <TypeText as="p" className="section-description" text={description} delay={180} speed={10} />}
+    <div className="profile-heading section-title-block">
+      <MotionText as="h2" className="profile-title" text={title} />
+      <TypeText className="profile-pill" text={label} delay={140} speed={28} />
     </div>
   );
 }
@@ -277,20 +326,20 @@ function About() {
     <section className="section about" id="about">
       <div className="frame">
         <div className="profile-heading">
-          <TypeText as="h2" className="profile-title" text="PROFILE" speed={34} />
-          <TypeText className="profile-pill" text="个人经历" delay={140} speed={28} />
+          <MotionText as="h2" className="profile-title" text="PROFILE" />
+          <TypeText className="profile-pill" text="个人简历" delay={140} speed={28} />
         </div>
 
         <div className="profile-showcase">
-          <div className="portrait-wrap profile-portrait">
-            <img src="/assets/profile-source.jpg" alt="刘海宁 Nick 个人照片" />
+          <ResumeGlow className="portrait-wrap profile-portrait">
+            <img src="/assets/profile-rabbit.png" alt="刘海宁个人视觉形象：赛博机械白兔" />
             <div className="portrait-label">
               <TypeText text="NICK / 刘海宁" speed={18} />
               <TypeText text="HANGZHOU · CHINA" delay={120} speed={18} />
             </div>
-          </div>
+          </ResumeGlow>
 
-          <article className="profile-summary">
+          <ResumeGlow className="profile-summary">
             <div>
               <TypeText
                 as="h3"
@@ -314,30 +363,28 @@ function About() {
                 <TypeText text="13526323295@163.com" delay={380} speed={18} />
               </a>
             </div>
-          </article>
+          </ResumeGlow>
         </div>
 
         <div className="profile-stats" aria-label="个人项目数据">
-          <div><TypeText as="strong" text="05+" speed={64} /><TypeText text="年设计经验" delay={80} speed={24} /></div>
-          <div><TypeText as="strong" text="20+" delay={80} speed={64} /><TypeText text="项目交付" delay={140} speed={24} /></div>
-          <div><TypeText as="strong" text="03" delay={160} speed={64} /><TypeText text="产品场景" delay={200} speed={24} /></div>
-          <div><TypeText as="strong" text="06" delay={220} speed={64} /><TypeText text="核心能力" delay={260} speed={24} /></div>
+          <ResumeGlow className="profile-stat-card">
+            <strong aria-label="05+"><CountUp to={5} duration={1.8} delay={0.4} padStart={2} /><span className="count-up-suffix">+</span></strong>
+            <TypeText text="年设计经验" delay={80} speed={24} />
+          </ResumeGlow>
+          <ResumeGlow className="profile-stat-card">
+            <strong aria-label="20+"><CountUp to={20} duration={1.8} delay={0.52} padStart={2} /><span className="count-up-suffix">+</span></strong>
+            <TypeText text="项目交付" delay={140} speed={24} />
+          </ResumeGlow>
+          <ResumeGlow className="profile-stat-card">
+            <strong aria-label="03"><CountUp to={3} duration={1.8} delay={0.64} padStart={2} /></strong>
+            <TypeText text="产品场景" delay={200} speed={24} />
+          </ResumeGlow>
+          <ResumeGlow className="profile-stat-card">
+            <strong aria-label="06"><CountUp to={6} duration={1.8} delay={0.76} padStart={2} /></strong>
+            <TypeText text="核心能力" delay={260} speed={24} />
+          </ResumeGlow>
         </div>
 
-        <div className="profile-experience-label">
-          <TypeText text="WORK EXPERIENCE" speed={20} />
-          <TypeText text="工作履历" delay={100} speed={24} />
-        </div>
-        <div className="experience-list">
-          {experiences.map((item, index) => (
-            <article className="experience-row" key={item.company}>
-              <TypeText className="experience-index" text={`0${index + 1}`} speed={34} />
-              <TypeText as="h3" text={item.company} delay={80} speed={16} />
-              <TypeText as="p" text={item.role} delay={140} speed={20} />
-              <TypeText as="time" text={item.time} delay={180} speed={20} />
-            </article>
-          ))}
-        </div>
       </div>
     </section>
   );
@@ -348,29 +395,40 @@ function Work() {
     <section className="section work" id="work">
       <div className="frame">
         <SectionHeading
-          index="02"
-          kicker="SELECTED PROJECTS / 2022—2026"
-          title="跨越移动端、后台系统与车载场景的产品实践。"
-          description="项目视觉封面为当前基础版的艺术化占位；后续替换成你的真实作品截图后，会继续完善项目详情与案例叙事。"
+          title="SELECTED PROJECTS"
+          label="精选项目"
         />
-        <div className="project-list">
-          {projects.map((project) => (
-            <article className="project-card" key={project.id} tabIndex="0">
-              <img src={project.image} alt={`${project.title} 项目视觉封面`} />
-              <div className="project-overlay" />
-              <div className="project-topline">
-                <TypeText text={`/${project.id}`} speed={26} />
-                <TypeText text={project.type} delay={80} speed={18} />
-                <TypeText text={project.year} delay={140} speed={18} />
-              </div>
-              <div className="project-copy">
-                <TypeText as="h3" text={project.title} delay={100} speed={32} />
-                <TypeText as="p" text={project.description} delay={180} speed={10} />
-              </div>
-              <span className="project-action" aria-hidden="true"><ArrowUpRight size={28} /></span>
-            </article>
-          ))}
+        <div className="project-gallery-toolbar">
+          <TypeText text="HORIZONTAL ARCHIVE / 08 PROJECTS" speed={18} />
         </div>
+        <CircularGallery
+          className="project-list"
+          items={projects}
+          bend={1.55}
+          scrollSpeed={1.35}
+          scrollEase={0.065}
+          renderItem={(project) => (
+            <article className="project-card" tabIndex="0">
+              <div className="project-media">
+                <img src={project.image} alt={`${project.title} 项目视觉封面`} />
+              </div>
+              <div className="project-details">
+                <div className="project-topline">
+                  <TypeText className="project-index" text={`ARCHIVE ${project.id}`} speed={26} />
+                  <TypeText text={project.year} delay={80} speed={20} />
+                </div>
+                <div className="project-copy">
+                  <div className="project-meta">
+                    <TypeText text={project.type} delay={140} speed={18} />
+                  </div>
+                  <TypeText as="h3" text={project.title} delay={100} speed={32} />
+                  <TypeText as="p" text={project.description} delay={180} speed={10} />
+                </div>
+                <span className="project-action" aria-hidden="true"><ArrowUpRight size={22} /></span>
+              </div>
+            </article>
+          )}
+        />
       </div>
     </section>
   );
@@ -381,19 +439,28 @@ function Capabilities() {
     <section className="section capabilities" id="capabilities">
       <div className="frame">
         <SectionHeading
-          index="03"
-          kicker="CAPABILITIES / DESIGN PRACTICE"
-          title="设计能力不是清单，而是一套持续解决问题的方法。"
+          title="CAPABILITIES"
+          label="个人优势"
         />
         <div className="capability-grid">
           {capabilities.map(({ icon: Icon, ...item }) => (
-            <article className="capability-card" key={item.index}>
+            <article
+              className="capability-card"
+              key={item.index}
+              tabIndex="0"
+              aria-label={`${item.title}：${item.details.join("；")}`}
+            >
               <div className="capability-top">
                 <TypeText text={item.index} speed={28} />
-                <Icon size={30} weight="light" />
+                <TypeText text={item.category} delay={80} speed={22} />
               </div>
               <TypeText as="h3" text={item.title} delay={80} speed={28} />
-              <TypeText as="p" text={item.body} delay={150} speed={11} />
+              <div className="capability-details" aria-hidden="true">
+                {item.details.map((detail, detailIndex) => (
+                  <span key={detail} style={{ "--detail-index": detailIndex }}>{detail}</span>
+                ))}
+              </div>
+              <Icon className="capability-visual" size={148} weight="thin" aria-hidden="true" />
             </article>
           ))}
         </div>
@@ -422,7 +489,7 @@ function Contact() {
           <TypeText text="HANGZHOU · CHINA" delay={140} speed={18} />
         </div>
         <TypeText as="p" className="eyebrow" text="LET'S CREATE SOMETHING MEANINGFUL" delay={120} speed={18} />
-        <TypeText as="h2" text={"有新的想法，\n一起让它发生。"} delay={220} speed={34} cursor />
+        <MotionText as="h2" text={"有新的想法，\n一起让它发生。"} />
         <div className="contact-actions">
           <a href={`mailto:${email}`}>
             <TypeText text={email} delay={360} speed={18} /> <ArrowUpRight size={24} />
@@ -442,6 +509,9 @@ function Contact() {
 }
 
 export function App() {
+  const rootRef = useRef(null);
+  usePortfolioMotion(rootRef);
+
   useEffect(() => {
     const onKeyDown = (event) => {
       if (event.key.toLowerCase() === "g") {
@@ -453,12 +523,23 @@ export function App() {
   }, []);
 
   return (
-    <main>
+    <main ref={rootRef} className="portfolio-shell">
+      <div className="opening-screen" aria-hidden="true">
+        <div className="opening-screen__meta">
+          <span>CREATIVE DIRECTION</span>
+          <span className="opening-screen__counter">000</span>
+        </div>
+        <div className="opening-screen__identity">
+          <strong>LIU HAI NING</strong>
+          <small>DESIGN PORTFOLIO / 2026</small>
+        </div>
+        <span className="opening-screen__rule" />
+      </div>
       <div className="site-grainient" aria-hidden="true">
         <Grainient
-          color1="#315f79"
-          color2="#071019"
-          color3="#172743"
+          color1="#3976a5"
+          color2="#050b12"
+          color3="#17365b"
           timeSpeed={0.12}
           colorBalance={-0.08}
           warpStrength={0.72}

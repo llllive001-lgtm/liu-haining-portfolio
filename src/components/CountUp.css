@@ -1,0 +1,10 @@
+.count-up-text {
+  display: inline-block;
+  min-width: 2ch;
+  font-variant-numeric: tabular-nums;
+}
+
+.count-up-suffix {
+  display: inline-block;
+  margin-left: 0.02em;
+}

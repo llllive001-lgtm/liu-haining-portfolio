@@ -4,6 +4,7 @@ dist/
 .pnpm-store/
 .DS_Store
 qa-*.png
+design-qa-*.png
+design-qa-*.jpg
 design-qa.md
 AGENTS.md
-
