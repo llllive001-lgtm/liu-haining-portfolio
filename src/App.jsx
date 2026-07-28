@@ -1,16 +1,12 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import {
   ArrowDown,
   ArrowUpRight,
-  CarProfile,
   Copy,
   EnvelopeSimple,
-  GridFour,
   List,
-  MagicWand,
   Phone,
-  Stack,
-  UsersThree,
   X,
 } from "@phosphor-icons/react";
 import GlassSurface from "./components/GlassSurface";
@@ -24,18 +20,46 @@ import usePortfolioMotion from "./hooks/usePortfolioMotion";
 const projects = [
   {
     id: "01",
-    title: "爱医",
+    title: "爱医健康",
     type: "HEALTHCARE APP / UI/UX",
     year: "2025–2026",
     image: "/assets/project-aiyi-cover.jpg",
+    pages: [
+      "/assets/project-aiyi-page-01.jpg",
+      "/assets/project-aiyi-page-02.jpg",
+      "/assets/project-aiyi-page-03.jpg",
+      "/assets/project-aiyi-page-04.jpg",
+      "/assets/project-aiyi-page-05.jpg",
+      "/assets/project-aiyi-page-06.jpg",
+      "/assets/project-aiyi-page-07.jpg",
+      "/assets/project-aiyi-page-08.jpg",
+      "/assets/project-aiyi-page-09.jpg",
+      "/assets/project-aiyi-page-10.jpg",
+      "/assets/project-aiyi-page-11.jpg",
+      "/assets/project-aiyi-page-12.jpg",
+      "/assets/project-aiyi-page-13.jpg",
+    ],
     description: "围绕在线问诊、健康数据与家庭健康档案，打造更有陪伴感的移动医疗体验。",
   },
   {
     id: "02",
-    title: "获课",
+    title: "获客一下",
     type: "APP / PRODUCT DESIGN",
     year: "2022–2023",
     image: "/assets/project-huoke-cover.jpg",
+    pages: [
+      "/assets/project-huoke-page-01.jpg",
+      "/assets/project-huoke-page-02.jpg",
+      "/assets/project-huoke-page-03.jpg",
+      "/assets/project-huoke-page-04.jpg",
+      "/assets/project-huoke-page-05.jpg",
+      "/assets/project-huoke-page-06.jpg",
+      "/assets/project-huoke-page-07.jpg",
+      "/assets/project-huoke-page-08.jpg",
+      "/assets/project-huoke-page-09.jpg",
+      "/assets/project-huoke-page-10.jpg",
+      "/assets/project-huoke-page-11.jpg",
+    ],
     description: "面向管理培训行业的售课平台，从需求理解、原型推演到高保真 UI 与开发交付。",
   },
   {
@@ -44,6 +68,16 @@ const projects = [
     type: "DATA APP / PRODUCT DESIGN",
     year: "2022–2023",
     image: "/assets/project-huoke-admin-cover.jpg",
+    pages: [
+      "/assets/project-huoke-admin-page-01.jpg",
+      "/assets/project-huoke-admin-page-02.jpg",
+      "/assets/project-huoke-admin-page-03.jpg",
+      "/assets/project-huoke-admin-page-04.jpg",
+      "/assets/project-huoke-admin-page-05.jpg",
+      "/assets/project-huoke-admin-page-06.jpg",
+      "/assets/project-huoke-admin-page-07.jpg",
+      "/assets/project-huoke-admin-page-08.jpg",
+    ],
     description: "面向讲师与运营团队的数据管理工具，整合浏览、脱敏、评估与业务跟进流程。",
   },
   {
@@ -52,6 +86,20 @@ const projects = [
     type: "WEB / DESIGN SYSTEM",
     year: "2023–2025",
     image: "/assets/project-fuxi-cover.jpg",
+    pages: [
+      "/assets/project-fuxi-page-01.jpg",
+      "/assets/project-fuxi-page-02.jpg",
+      "/assets/project-fuxi-page-03.jpg",
+      "/assets/project-fuxi-page-04.jpg",
+      "/assets/project-fuxi-page-05.jpg",
+      "/assets/project-fuxi-page-06.jpg",
+      "/assets/project-fuxi-page-07.jpg",
+      "/assets/project-fuxi-page-08.jpg",
+      "/assets/project-fuxi-page-09.jpg",
+      "/assets/project-fuxi-page-10.jpg",
+      "/assets/project-fuxi-page-11.jpg",
+      "/assets/project-fuxi-page-12.jpg",
+    ],
     description: "梳理 HOK 获客文化业务链路，统一高频列表、表单与数据展示场景。",
   },
   {
@@ -60,6 +108,18 @@ const projects = [
     type: "WEB + APP / EXPERIENCE",
     year: "2024–2025",
     image: "/assets/project-aoshimei-cover.jpg",
+    pages: [
+      "/assets/project-aoshimei-page-01.jpg",
+      "/assets/project-aoshimei-page-02.jpg",
+      "/assets/project-aoshimei-page-03.jpg",
+      "/assets/project-aoshimei-page-04.jpg",
+      "/assets/project-aoshimei-page-05.jpg",
+      "/assets/project-aoshimei-page-06.jpg",
+      "/assets/project-aoshimei-page-07.jpg",
+      "/assets/project-aoshimei-page-08.jpg",
+      "/assets/project-aoshimei-page-09.jpg",
+      "/assets/project-aoshimei-page-10.jpg",
+    ],
     description: "为正畸牙科医生重构病例提交体验，降低制作周期并提升操作效率。",
   },
   {
@@ -68,6 +128,15 @@ const projects = [
     type: "BRAND WEB / VISUAL DESIGN",
     year: "2022",
     image: "/assets/project-art-furniture-cover.jpg",
+    pages: [
+      "/assets/project-artist-page-01.jpg",
+      "/assets/project-artist-page-02.jpg",
+      "/assets/project-artist-page-03.jpg",
+      "/assets/project-artist-page-04.jpg",
+      "/assets/project-artist-page-05.jpg",
+      "/assets/project-artist-page-06.jpg",
+      "/assets/project-artist-page-07.jpg",
+    ],
     description: "以克制的空间语言与暖色材质表达，完成艺术家具品牌网站的视觉与浏览体验。",
   },
   {
@@ -76,6 +145,14 @@ const projects = [
     type: "AUTOMOTIVE HMI / UI/UX",
     year: "2025",
     image: "/assets/project-otd-cover.jpg",
+    pages: [
+      "/assets/project-otd-page-01.jpg",
+      "/assets/project-otd-page-02.jpg",
+      "/assets/project-otd-page-03.jpg",
+      "/assets/project-otd-page-04.jpg",
+      "/assets/project-otd-page-05.jpg",
+      "/assets/project-otd-page-06.jpg",
+    ],
     description: "面向海外市场的旗舰车载系统，负责从 0 到 1 的视觉系统与原型交互。",
   },
   {
@@ -84,41 +161,47 @@ const projects = [
     type: "MOTORCYCLE HMI / UI DESIGN",
     year: "2025",
     image: "/assets/project-moto-pno-cover.jpg",
+    pages: [
+      "/assets/project-other-page-01.jpg",
+      "/assets/project-other-page-02.jpg",
+      "/assets/project-other-page-03.jpg",
+      "/assets/project-other-page-04.jpg",
+    ],
     description: "探索摩托车智能座舱界面，在骑行信息、车辆状态与快捷应用之间建立清晰层级。",
   },
 ];
 
 const capabilities = [
   {
-    icon: GridFour,
+    visual: "/assets/capability-project.png",
     index: "01",
     category: "CORE",
     title: "完整项目主导能力",
     details: ["需求拆解与项目节奏规划", "跨阶段推进视觉落地", "把控质量、效率与交付结果"],
   },
   {
-    icon: Stack,
+    visual: "/assets/capability-system.png",
     index: "02",
     category: "CORE",
     title: "品牌与视觉系统搭建",
     details: ["品牌语言与视觉概念定义", "组件规范与设计系统沉淀", "建立一致、可扩展的体验秩序"],
   },
   {
-    icon: CarProfile,
+    visual: "/assets/capability-automotive.png",
     index: "03",
     category: "SYSTEM",
     title: "多端产品与车载 HMI",
     details: ["APP、Web 后台与跨屏产品", "驾驶场景与视线成本分析", "从概念视觉到交互原型"],
   },
   {
-    icon: MagicWand,
+    visual: "/assets/capability-ai.png",
     index: "04",
     category: "SYSTEM",
     title: "AI 设计提效",
     details: ["AI 辅助视觉探索", "高效生成与方案验证", "保持一致的设计判断"],
   },
   {
-    icon: UsersThree,
+    visual: "/assets/capability-team.png",
     index: "05",
     category: "SYSTEM",
     title: "跨团队协作与交付",
@@ -390,7 +473,82 @@ function About() {
   );
 }
 
+function ProjectModal({ project, onClose }) {
+  const dialogRef = useRef(null);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return undefined;
+
+    dialog.showModal();
+    document.body.classList.add("project-modal-open");
+
+    const handleCancel = (event) => {
+      event.preventDefault();
+      onClose();
+    };
+
+    dialog.addEventListener("cancel", handleCancel);
+
+    return () => {
+      dialog.removeEventListener("cancel", handleCancel);
+      document.body.classList.remove("project-modal-open");
+      if (dialog.open) dialog.close();
+    };
+  }, [onClose]);
+
+  return createPortal(
+    <dialog
+      className="project-modal"
+      ref={dialogRef}
+      aria-labelledby={`project-modal-title-${project.id}`}
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div className="project-modal__shell">
+        <header className="project-modal__header">
+          <div className="project-modal__identity">
+            <span>ARCHIVE {project.id}</span>
+            <div>
+              <h2 id={`project-modal-title-${project.id}`}>{project.title}</h2>
+              <p>{project.year} / {project.type}</p>
+            </div>
+          </div>
+          <div className="project-modal__actions">
+            <span className="project-modal__page-count">{String(project.pages.length).padStart(2, "0")} PAGES</span>
+            <button type="button" onClick={onClose} aria-label={`关闭${project.title}项目详情`} autoFocus>
+              <X size={22} />
+            </button>
+          </div>
+        </header>
+        <div
+          className="project-modal__viewer"
+          tabIndex="0"
+          aria-label={`${project.title}项目作品集，共${project.pages.length}页，可上下滚动查看`}
+        >
+          <div className="project-modal__pages">
+            {project.pages.map((page, index) => (
+              <figure className="project-modal__page" key={page}>
+                <img
+                  src={page}
+                  alt={`${project.title}项目第${index + 1}页`}
+                  loading={index < 2 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </div>
+    </dialog>,
+    document.body,
+  );
+}
+
 function Work() {
+  const [selectedProject, setSelectedProject] = useState(null);
+
   return (
     <section className="section work" id="work">
       <div className="frame">
@@ -408,7 +566,20 @@ function Work() {
           scrollSpeed={1.35}
           scrollEase={0.065}
           renderItem={(project) => (
-            <article className="project-card" tabIndex="0">
+            <article
+              className="project-card"
+              tabIndex="0"
+              role="button"
+              aria-haspopup="dialog"
+              aria-label={`打开${project.title}项目详情`}
+              onClick={() => setSelectedProject(project)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setSelectedProject(project);
+                }
+              }}
+            >
               <div className="project-media">
                 <img src={project.image} alt={`${project.title} 项目视觉封面`} />
               </div>
@@ -430,6 +601,13 @@ function Work() {
           )}
         />
       </div>
+      {selectedProject ? (
+        <ProjectModal
+          key={selectedProject.id}
+          project={selectedProject}
+          onClose={() => setSelectedProject(null)}
+        />
+      ) : null}
     </section>
   );
 }
@@ -443,7 +621,7 @@ function Capabilities() {
           label="个人优势"
         />
         <div className="capability-grid">
-          {capabilities.map(({ icon: Icon, ...item }) => (
+          {capabilities.map((item) => (
             <article
               className="capability-card"
               key={item.index}
@@ -460,7 +638,12 @@ function Capabilities() {
                   <span key={detail} style={{ "--detail-index": detailIndex }}>{detail}</span>
                 ))}
               </div>
-              <Icon className="capability-visual" size={148} weight="thin" aria-hidden="true" />
+              <img
+                className="capability-visual"
+                src={item.visual}
+                alt=""
+                aria-hidden="true"
+              />
             </article>
           ))}
         </div>
