@@ -315,23 +315,77 @@ function Header({ isDocked }) {
 }
 
 function Hero() {
+  const videoRef = useRef(null);
+  const [playbackBlocked, setPlaybackBlocked] = useState(false);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return undefined;
+
+    const tryPlayback = () => {
+      const playback = video.play();
+      if (playback && typeof playback.catch === "function") {
+        playback
+          .then(() => setPlaybackBlocked(false))
+          .catch(() => setPlaybackBlocked(true));
+      }
+    };
+
+    const onVisibilityChange = () => {
+      if (!document.hidden && video.paused) tryPlayback();
+    };
+
+    tryPlayback();
+    document.addEventListener("visibilitychange", onVisibilityChange);
+    window.addEventListener("pageshow", tryPlayback);
+
+    return () => {
+      document.removeEventListener("visibilitychange", onVisibilityChange);
+      window.removeEventListener("pageshow", tryPlayback);
+    };
+  }, []);
+
   return (
     <section className="hero" id="top">
       <video
+        ref={videoRef}
         className="hero-background"
         autoPlay
         muted
+        defaultMuted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         poster="/assets/hero-rabbit-poster.jpg"
         aria-hidden="true"
         tabIndex="-1"
         disablePictureInPicture
+        onCanPlay={(event) => {
+          const playback = event.currentTarget.play();
+          if (playback && typeof playback.catch === "function") {
+            playback.catch(() => setPlaybackBlocked(true));
+          }
+        }}
+        onPlaying={() => setPlaybackBlocked(false)}
       >
         <source src="/assets/hero-rabbit-motion-v2.mp4" type="video/mp4" />
       </video>
       <div className="hero-shade" />
+      {playbackBlocked ? (
+        <button
+          className="hero-playback"
+          type="button"
+          onClick={() => {
+            const playback = videoRef.current?.play();
+            if (playback && typeof playback.then === "function") {
+              playback.then(() => setPlaybackBlocked(false)).catch(() => {});
+            }
+          }}
+        >
+          <span aria-hidden="true">▶</span>
+          PLAY MOTION
+        </button>
+      ) : null}
 
       <div className="hero-layout frame">
         <h1 className="hero-title hero-title-left">
@@ -567,9 +621,9 @@ function Work() {
                 <img
                   src={project.image}
                   alt={`${project.title} 项目视觉封面`}
-                  loading="lazy"
+                  loading={copy === 1 ? "eager" : "lazy"}
                   decoding="async"
-                  fetchPriority="low"
+                  fetchPriority={copy === 1 ? "high" : "low"}
                 />
               </div>
               <div className="project-details">
@@ -637,9 +691,9 @@ function Capabilities() {
                 src={item.visual}
                 alt=""
                 aria-hidden="true"
-                loading="lazy"
+                loading="eager"
                 decoding="async"
-                fetchPriority="low"
+                fetchPriority="auto"
               />
             </article>
           ))}

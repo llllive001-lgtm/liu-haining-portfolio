@@ -191,6 +191,28 @@ button { font: inherit; }
   background-color: rgba(3, 8, 18, 0.22);
 }
 
+.hero-playback {
+  position: absolute;
+  right: max(16px, calc((100vw - var(--frame)) / 2));
+  bottom: clamp(24px, 5vh, 54px);
+  z-index: 8;
+  min-height: 42px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid rgba(213, 235, 255, 0.42);
+  border-radius: 999px;
+  background: rgba(5, 12, 20, 0.52);
+  color: var(--hero-ice);
+  font: inherit;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+}
+
 .hero::after {
   content: "";
   position: absolute;
@@ -1744,13 +1766,15 @@ body.project-modal-open {
   }
 
   .capability-details span {
-    opacity: 1;
-    transform: translateY(0) rotate(-3deg);
+    opacity: 0;
   }
 
-  .capability-details span:nth-child(2) { transform: translateY(0) rotate(3deg); }
-  .capability-details span:nth-child(3) { transform: translateY(0) rotate(-2deg); }
-  .capability-visual { opacity: 0.1; }
+  .capability-visual { opacity: 0.92; }
+
+  .capability-card:focus .capability-details span,
+  .capability-card:focus-visible .capability-details span {
+    opacity: 1;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
