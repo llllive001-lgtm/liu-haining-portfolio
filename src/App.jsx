@@ -15,6 +15,7 @@ import TextType from "./components/TextType";
 import BorderGlow from "./components/BorderGlow";
 import CountUp from "./components/CountUp";
 import CircularGallery from "./components/CircularGallery";
+import GradualBlur from "./components/GradualBlur";
 import usePortfolioMotion from "./hooks/usePortfolioMotion";
 
 const projects = [
@@ -167,41 +168,41 @@ const projects = [
       "/assets/project-other-page-03.jpg",
       "/assets/project-other-page-04.jpg",
     ],
-    description: "探索摩托车智能座舱界面，在骑行信息、车辆状态与快捷应用之间建立清晰层级。",
+    description: "涵盖车载 PND、摩托车座舱与运营 H5，兼顾信息效率、视觉表达与落地体验。",
   },
 ];
 
 const capabilities = [
   {
-    visual: "/assets/capability-project.png",
+    visual: "/assets/capability-project-optimized.png",
     index: "01",
     category: "CORE",
     title: "完整项目主导能力",
     details: ["需求拆解与项目节奏规划", "跨阶段推进视觉落地", "把控质量、效率与交付结果"],
   },
   {
-    visual: "/assets/capability-system.png",
+    visual: "/assets/capability-system-optimized.png",
     index: "02",
     category: "CORE",
     title: "品牌与视觉系统搭建",
     details: ["品牌语言与视觉概念定义", "组件规范与设计系统沉淀", "建立一致、可扩展的体验秩序"],
   },
   {
-    visual: "/assets/capability-automotive.png",
+    visual: "/assets/capability-automotive-optimized.png",
     index: "03",
     category: "SYSTEM",
     title: "多端产品与车载 HMI",
     details: ["APP、Web 后台与跨屏产品", "驾驶场景与视线成本分析", "从概念视觉到交互原型"],
   },
   {
-    visual: "/assets/capability-ai.png",
+    visual: "/assets/capability-ai-optimized.png",
     index: "04",
     category: "SYSTEM",
     title: "AI 设计提效",
     details: ["AI 辅助视觉探索", "高效生成与方案验证", "保持一致的设计判断"],
   },
   {
-    visual: "/assets/capability-team.png",
+    visual: "/assets/capability-team-optimized.png",
     index: "05",
     category: "SYSTEM",
     title: "跨团队协作与交付",
@@ -245,11 +246,11 @@ function ResumeGlow({ children, className = "" }) {
       glowColor="209 100 82"
       backgroundColor="#081117"
       borderRadius={0}
-      glowRadius={24}
-      glowIntensity={0.82}
-      coneSpread={23}
-      colors={["#f1f8ff", "#acd9ff", "#6ea9ff"]}
-      fillOpacity={0.2}
+      glowRadius={16}
+      glowIntensity={0.55}
+      coneSpread={18}
+      colors={["#e8f6ff", "#abd9ff", "#78b7ed"]}
+      fillOpacity={0}
     >
       {children}
     </BorderGlow>
@@ -264,33 +265,9 @@ function BrandMark() {
   );
 }
 
-function Header() {
+function Header({ isDocked }) {
   const [open, setOpen] = useState(false);
-  const [isDocked, setIsDocked] = useState(false);
   const close = () => setOpen(false);
-
-  useEffect(() => {
-    let frameId;
-
-    const updateDockedState = () => {
-      window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(() => {
-        const secondScreen = document.querySelector("#about");
-        if (!secondScreen) return;
-        setIsDocked(window.scrollY >= secondScreen.offsetTop - 64);
-      });
-    };
-
-    updateDockedState();
-    window.addEventListener("scroll", updateDockedState, { passive: true });
-    window.addEventListener("resize", updateDockedState);
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener("scroll", updateDockedState);
-      window.removeEventListener("resize", updateDockedState);
-    };
-  }, []);
 
   return (
     <header className={isDocked ? "site-header is-docked" : "site-header"}>
@@ -347,12 +324,12 @@ function Hero() {
         loop
         playsInline
         preload="metadata"
-        poster="/assets/hero-rabbit.png"
+        poster="/assets/hero-rabbit-poster.jpg"
         aria-hidden="true"
         tabIndex="-1"
         disablePictureInPicture
       >
-        <source src="/assets/hero-rabbit-motion.mp4" type="video/mp4" />
+        <source src="/assets/hero-rabbit-motion-v2.mp4" type="video/mp4" />
       </video>
       <div className="hero-shade" />
 
@@ -415,7 +392,13 @@ function About() {
 
         <div className="profile-showcase">
           <ResumeGlow className="portrait-wrap profile-portrait">
-            <img src="/assets/profile-rabbit.png" alt="刘海宁个人视觉形象：赛博机械白兔" />
+            <img
+              src="/assets/profile-rabbit-optimized.jpg"
+              alt="刘海宁个人视觉形象：赛博机械白兔"
+              loading="lazy"
+              decoding="async"
+              fetchPriority="low"
+            />
             <div className="portrait-label">
               <TypeText text="NICK / 刘海宁" speed={18} />
               <TypeText text="HANGZHOU · CHINA" delay={120} speed={18} />
@@ -565,10 +548,10 @@ function Work() {
           bend={1.55}
           scrollSpeed={1.35}
           scrollEase={0.065}
-          renderItem={(project) => (
+          renderItem={(project, _index, copy) => (
             <article
               className="project-card"
-              tabIndex="0"
+              tabIndex={copy === 1 ? 0 : -1}
               role="button"
               aria-haspopup="dialog"
               aria-label={`打开${project.title}项目详情`}
@@ -581,7 +564,13 @@ function Work() {
               }}
             >
               <div className="project-media">
-                <img src={project.image} alt={`${project.title} 项目视觉封面`} />
+                <img
+                  src={project.image}
+                  alt={`${project.title} 项目视觉封面`}
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="low"
+                />
               </div>
               <div className="project-details">
                 <div className="project-topline">
@@ -593,9 +582,14 @@ function Work() {
                     <TypeText text={project.type} delay={140} speed={18} />
                   </div>
                   <TypeText as="h3" text={project.title} delay={100} speed={32} />
-                  <TypeText as="p" text={project.description} delay={180} speed={10} />
+                  <TypeText
+                    as="p"
+                    className={project.id === "08" ? "project-description--single-line" : ""}
+                    text={project.description}
+                    delay={180}
+                    speed={10}
+                  />
                 </div>
-                <span className="project-action" aria-hidden="true"><ArrowUpRight size={22} /></span>
               </div>
             </article>
           )}
@@ -643,6 +637,9 @@ function Capabilities() {
                 src={item.visual}
                 alt=""
                 aria-hidden="true"
+                loading="lazy"
+                decoding="async"
+                fetchPriority="low"
               />
             </article>
           ))}
@@ -693,7 +690,36 @@ function Contact() {
 
 export function App() {
   const rootRef = useRef(null);
+  const [isDocked, setIsDocked] = useState(false);
   usePortfolioMotion(rootRef);
+
+  useEffect(() => {
+    let frameId;
+    let lastDockedState;
+
+    const updateDockedState = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(() => {
+        const secondScreen = document.querySelector("#about");
+        if (!secondScreen) return;
+        const nextDockedState = window.scrollY >= secondScreen.offsetTop - 64;
+        if (nextDockedState !== lastDockedState) {
+          lastDockedState = nextDockedState;
+          setIsDocked(nextDockedState);
+        }
+      });
+    };
+
+    updateDockedState();
+    window.addEventListener("scroll", updateDockedState, { passive: true });
+    window.addEventListener("resize", updateDockedState);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener("scroll", updateDockedState);
+      window.removeEventListener("resize", updateDockedState);
+    };
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -720,31 +746,49 @@ export function App() {
       </div>
       <div className="site-grainient" aria-hidden="true">
         <Grainient
-          color1="#3976a5"
-          color2="#050b12"
-          color3="#17365b"
-          timeSpeed={0.12}
-          colorBalance={-0.08}
-          warpStrength={0.72}
-          warpFrequency={3.4}
-          warpSpeed={0.72}
-          warpAmplitude={74}
-          blendAngle={-18}
-          blendSoftness={0.16}
-          rotationAmount={240}
-          noiseScale={1.45}
-          grainAmount={0.055}
-          grainScale={2.4}
+          color1="#86c8ef"
+          color2="#02070c"
+          color3="#334d78"
+          timeSpeed={0.34}
+          colorBalance={-0.12}
+          warpStrength={1.18}
+          warpFrequency={4.2}
+          warpSpeed={1.45}
+          warpAmplitude={58}
+          blendAngle={-14}
+          blendSoftness={0.12}
+          rotationAmount={380}
+          noiseScale={1.8}
+          grainAmount={0.045}
+          grainScale={2.2}
           grainAnimated
-          contrast={1.2}
-          gamma={0.92}
-          saturation={0.78}
-          centerX={0.02}
-          centerY={-0.04}
-          zoom={0.82}
+          contrast={1.28}
+          gamma={0.94}
+          saturation={0.86}
+          centerX={0}
+          centerY={-0.02}
+          zoom={0.86}
         />
       </div>
-      <Header />
+      <GradualBlur
+        target="page"
+        position="top"
+        height="12rem"
+        strength={3.6}
+        divCount={8}
+        curve="bezier"
+        exponential
+        opacity={1}
+        duration="0.55s"
+        easing="cubic-bezier(0.16, 1, 0.3, 1)"
+        zIndex={850}
+        className="page-top-gradual-blur"
+        style={{
+          opacity: isDocked ? 1 : 0,
+          visibility: isDocked ? "visible" : "hidden",
+        }}
+      />
+      <Header isDocked={isDocked} />
       <Hero />
       <About />
       <Work />

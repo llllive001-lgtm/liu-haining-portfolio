@@ -55,6 +55,8 @@ const CircularGallery = forwardRef(function CircularGallery({
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const effectiveEase = reduceMotion ? 1 : scrollEase;
     const effectiveBend = reduceMotion ? 0 : bend;
+    let isVisible = false;
+    let isPageVisible = !document.hidden;
 
     const updateBounds = () => {
       const nextStep = getStep();
@@ -111,6 +113,8 @@ const CircularGallery = forwardRef(function CircularGallery({
     };
 
     const update = () => {
+      animationRef.current = null;
+      if (!isVisible || !isPageVisible) return;
       scrollRef.current.current = lerp(scrollRef.current.current, scrollRef.current.target, effectiveEase);
       if (Math.abs(scrollRef.current.target - scrollRef.current.current) < 0.05) {
         scrollRef.current.current = scrollRef.current.target;
@@ -121,11 +125,25 @@ const CircularGallery = forwardRef(function CircularGallery({
       animationRef.current = window.requestAnimationFrame(update);
     };
 
+    const startAnimation = () => {
+      if (!animationRef.current && isVisible && isPageVisible) {
+        animationRef.current = window.requestAnimationFrame(update);
+      }
+    };
+
+    const stopAnimation = () => {
+      if (animationRef.current) {
+        window.cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
+      }
+    };
+
     const onWheel = (event) => {
       if (Math.abs(event.deltaX) < 1 && Math.abs(event.deltaY) < 1) return;
       event.preventDefault();
       const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       scrollRef.current.target += delta * scrollSpeed * 0.55;
+      startAnimation();
       scheduleSnap();
     };
 
@@ -149,6 +167,7 @@ const CircularGallery = forwardRef(function CircularGallery({
         dragRef.current.moved = true;
       }
       scrollRef.current.target = dragRef.current.startTarget + distance;
+      startAnimation();
     };
 
     const onPointerUp = () => {
@@ -190,8 +209,22 @@ const CircularGallery = forwardRef(function CircularGallery({
     const resizeObserver = new ResizeObserver(updateBounds);
     resizeObserver.observe(container);
     resizeObserver.observe(track);
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+      if (isVisible) startAnimation();
+      else stopAnimation();
+    }, { rootMargin: "180px 0px", threshold: 0 });
+    visibilityObserver.observe(container);
+
+    const onVisibilityChange = () => {
+      isPageVisible = !document.hidden;
+      if (isPageVisible) startAnimation();
+      else stopAnimation();
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     updateBounds();
-    update();
+    updateItems();
 
     container.addEventListener("wheel", onWheel, { passive: false });
     container.addEventListener("pointerdown", onPointerDown);
@@ -205,6 +238,8 @@ const CircularGallery = forwardRef(function CircularGallery({
       window.cancelAnimationFrame(animationRef.current);
       window.clearTimeout(snapTimerRef.current);
       resizeObserver.disconnect();
+      visibilityObserver.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       container.removeEventListener("wheel", onWheel);
       container.removeEventListener("pointerdown", onPointerDown);
       container.removeEventListener("pointermove", onPointerMove);
@@ -229,10 +264,9 @@ const CircularGallery = forwardRef(function CircularGallery({
             className="circular-gallery__item"
             data-gallery-copy={copy}
             aria-hidden={copy === 1 ? undefined : "true"}
-            inert={copy === 1 ? undefined : true}
             key={`${copy}-${item.id ?? index}`}
           >
-            {renderItem ? renderItem(item, index) : null}
+            {renderItem ? renderItem(item, index, copy) : null}
           </div>
         )))}
       </div>

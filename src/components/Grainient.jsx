@@ -147,7 +147,7 @@ const Grainient = ({
     container.appendChild(canvas);
     const resize = () => {
       const rect = container.getBoundingClientRect();
-      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.15);
       canvas.width = Math.max(1, Math.floor(rect.width * dpr));
       canvas.height = Math.max(1, Math.floor(rect.height * dpr));
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -158,13 +158,17 @@ const Grainient = ({
     resize();
     const startedAt = performance.now();
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const motionScale = reduceMotion ? 0.22 : 1;
+    const frameInterval = 1000 / (reduceMotion ? 20 : 30);
     let frameId = 0;
     let running = true;
-    const draw = (now) => {
-      const p = propsRef.current;
-      gl.useProgram(program);
-      gl.uniform1f(uniforms.iTime, (now - startedAt) * 0.001);
-      gl.uniform1f(uniforms.uTimeSpeed, reduceMotion ? 0 : p.timeSpeed);
+    let lastRenderAt = 0;
+    let lastSyncedProps = null;
+
+    const syncStaticUniforms = (p) => {
+      if (p === lastSyncedProps) return;
+      lastSyncedProps = p;
+      gl.uniform1f(uniforms.uTimeSpeed, p.timeSpeed * motionScale);
       gl.uniform1f(uniforms.uColorBalance, p.colorBalance);
       gl.uniform1f(uniforms.uWarpStrength, p.warpStrength);
       gl.uniform1f(uniforms.uWarpFrequency, p.warpFrequency);
@@ -176,7 +180,7 @@ const Grainient = ({
       gl.uniform1f(uniforms.uNoiseScale, p.noiseScale);
       gl.uniform1f(uniforms.uGrainAmount, p.grainAmount);
       gl.uniform1f(uniforms.uGrainScale, p.grainScale);
-      gl.uniform1f(uniforms.uGrainAnimated, p.grainAnimated && !reduceMotion ? 1 : 0);
+      gl.uniform1f(uniforms.uGrainAnimated, p.grainAnimated ? motionScale : 0);
       gl.uniform1f(uniforms.uContrast, p.contrast);
       gl.uniform1f(uniforms.uGamma, p.gamma);
       gl.uniform1f(uniforms.uSaturation, p.saturation);
@@ -185,13 +189,26 @@ const Grainient = ({
       gl.uniform3fv(uniforms.uColor1, hexToRgb(p.color1));
       gl.uniform3fv(uniforms.uColor2, hexToRgb(p.color2));
       gl.uniform3fv(uniforms.uColor3, hexToRgb(p.color3));
-      gl.drawArrays(gl.TRIANGLES, 0, 3);
-      frameId = reduceMotion || !running ? 0 : requestAnimationFrame(draw);
+    };
+
+    const draw = (now) => {
+      if (now - lastRenderAt >= frameInterval) {
+        const p = propsRef.current;
+        gl.useProgram(program);
+        syncStaticUniforms(p);
+        gl.uniform1f(uniforms.iTime, (now - startedAt) * 0.001);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+        lastRenderAt = now;
+      }
+      frameId = running ? requestAnimationFrame(draw) : 0;
     };
     const onVisibility = () => {
       running = !document.hidden;
-      if (running && !frameId && !reduceMotion) frameId = requestAnimationFrame(draw);
-      if (!running && frameId) cancelAnimationFrame(frameId);
+      if (running && !frameId) frameId = requestAnimationFrame(draw);
+      if (!running && frameId) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
     };
     document.addEventListener("visibilitychange", onVisibility);
     frameId = requestAnimationFrame(draw);

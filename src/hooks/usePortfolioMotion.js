@@ -48,7 +48,7 @@ export default function usePortfolioMotion(rootRef) {
         gsap.set(".site-header", { y: -88, opacity: 0 });
         gsap.set(heroBackground, {
           scale: 1.18,
-          filter: "saturate(0.72) contrast(1.12) brightness(0.28)",
+          opacity: 0.42,
           transformOrigin: "center center",
         });
         gsap.set(heroShade, { opacity: 0.84 });
@@ -69,64 +69,64 @@ export default function usePortfolioMotion(rootRef) {
             document.body.classList.add("motion-ready");
             gsap.set(opening, { display: "none" });
             gsap.set([heroBackground, heroShade, ".site-header", ...heroSupport], {
-              clearProps: "transform,opacity,filter",
+              clearProps: "transform,opacity",
             });
             ScrollTrigger.refresh();
           },
         });
 
         openingTimeline
-          .to(".opening-screen__rule", { scaleX: 1, duration: 1.05 }, 0.08)
+          .to(".opening-screen__rule", { scaleX: 1, duration: 0.78 }, 0.06)
           .to(".opening-screen__identity > *", {
             yPercent: 0,
             opacity: 1,
-            duration: 1.15,
-            stagger: 0.12,
-          }, 0.18)
-          .to(".opening-screen__meta", { y: 0, opacity: 1, duration: 0.9 }, 0.36)
+            duration: 0.88,
+            stagger: 0.1,
+          }, 0.14)
+          .to(".opening-screen__meta", { y: 0, opacity: 1, duration: 0.68 }, 0.28)
           .to(counterState, {
             value: 100,
-            duration: 1.55,
+            duration: 1.05,
             ease: "power2.inOut",
             onUpdate: () => {
               if (openingCounter) openingCounter.textContent = String(Math.round(counterState.value)).padStart(3, "0");
             },
-          }, 0.12)
+          }, 0.08)
           .to(".opening-screen__identity > *, .opening-screen__meta", {
             yPercent: -115,
             opacity: 0,
-            duration: 0.78,
+            duration: 0.58,
             stagger: 0.05,
-          }, 1.48)
+          }, 1.08)
           .to(opening, {
             clipPath: "inset(0 0 100% 0)",
-            duration: 1.18,
-          }, 1.64)
+            duration: 0.88,
+          }, 1.18)
           .to(heroBackground, {
             scale: 1,
-            filter: "saturate(0.86) contrast(1.06) brightness(0.66)",
-            duration: 2.15,
+            opacity: 1,
+            duration: 1.42,
             ease: "power3.out",
-          }, 1.5)
-          .to(heroShade, { opacity: 1, duration: 1.5, ease: "power2.out" }, 1.5)
-          .to(".site-header", { y: 0, opacity: 1, duration: 1.15, ease: REVEAL_EASE }, 1.78)
+          }, 1.02)
+          .to(heroShade, { opacity: 1, duration: 1.05, ease: "power2.out" }, 1.02)
+          .to(".site-header", { y: 0, opacity: 1, duration: 0.9, ease: REVEAL_EASE }, 1.28)
           .to(heroTitleLines, {
             yPercent: 0,
             scaleY: 1,
             scaleX: 1,
             skewY: 0,
             opacity: 1,
-            duration: 1.45,
-            stagger: 0.13,
+            duration: 1.05,
+            stagger: 0.11,
             ease: REVEAL_EASE,
-          }, 1.82)
+          }, 1.3)
           .to(heroSupport, {
             y: 0,
             opacity: 1,
-            duration: 1.05,
-            stagger: 0.1,
+            duration: 0.82,
+            stagger: 0.08,
             ease: "power3.out",
-          }, 2.18);
+          }, 1.6);
 
         const setupSectionHeading = (section) => {
           const heading = section.querySelector(":scope > .frame > .profile-heading");
