@@ -16,8 +16,9 @@ const CircularGallery = forwardRef(function CircularGallery({
   const trackRef = useRef(null);
   const animationRef = useRef(null);
   const snapTimerRef = useRef(null);
+  const suppressClickRef = useRef(false);
   const scrollRef = useRef({ current: 0, target: 0, cycle: 0, step: 1 });
-  const dragRef = useRef({ active: false, startX: 0, startTarget: 0, pointerId: null });
+  const dragRef = useRef({ active: false, moved: false, startX: 0, startTarget: 0, pointerId: null });
 
   const getStep = () => {
     const track = trackRef.current;
@@ -132,6 +133,7 @@ const CircularGallery = forwardRef(function CircularGallery({
       if (event.pointerType === "mouse" && event.button !== 0) return;
       dragRef.current = {
         active: true,
+        moved: false,
         startX: event.clientX,
         startTarget: scrollRef.current.target,
         pointerId: event.pointerId,
@@ -143,17 +145,33 @@ const CircularGallery = forwardRef(function CircularGallery({
     const onPointerMove = (event) => {
       if (!dragRef.current.active) return;
       const distance = (dragRef.current.startX - event.clientX) * scrollSpeed;
+      if (Math.abs(event.clientX - dragRef.current.startX) > 7) {
+        dragRef.current.moved = true;
+      }
       scrollRef.current.target = dragRef.current.startTarget + distance;
     };
 
     const onPointerUp = () => {
       if (!dragRef.current.active) return;
+      if (dragRef.current.moved) {
+        suppressClickRef.current = true;
+        window.setTimeout(() => {
+          suppressClickRef.current = false;
+        }, 0);
+      }
       dragRef.current.active = false;
       container.classList.remove("is-dragging");
       if (container.hasPointerCapture(dragRef.current.pointerId)) {
         container.releasePointerCapture(dragRef.current.pointerId);
       }
       scheduleSnap();
+    };
+
+    const onClickCapture = (event) => {
+      if (!suppressClickRef.current) return;
+      event.preventDefault();
+      event.stopPropagation();
+      suppressClickRef.current = false;
     };
 
     const onKeyDown = (event) => {
@@ -180,6 +198,7 @@ const CircularGallery = forwardRef(function CircularGallery({
     container.addEventListener("pointermove", onPointerMove);
     container.addEventListener("pointerup", onPointerUp);
     container.addEventListener("pointercancel", onPointerUp);
+    container.addEventListener("click", onClickCapture, true);
     container.addEventListener("keydown", onKeyDown);
 
     return () => {
@@ -191,6 +210,7 @@ const CircularGallery = forwardRef(function CircularGallery({
       container.removeEventListener("pointermove", onPointerMove);
       container.removeEventListener("pointerup", onPointerUp);
       container.removeEventListener("pointercancel", onPointerUp);
+      container.removeEventListener("click", onClickCapture, true);
       container.removeEventListener("keydown", onKeyDown);
     };
   }, [bend, items, scrollEase, scrollSpeed]);
