@@ -609,6 +609,7 @@ function ProjectModal({ project, onClose }) {
 
 function Work() {
   const galleryRef = useRef(null);
+  const paginationRef = useRef(null);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
   const handleActiveProjectChange = useCallback((index) => {
@@ -620,6 +621,19 @@ function Work() {
   const closeProject = useCallback(() => {
     setSelectedProject(null);
   }, []);
+
+  useEffect(() => {
+    const pagination = paginationRef.current;
+    const activeButton = pagination?.querySelector(`[data-project-index="${activeProjectIndex}"]`);
+    if (!pagination || !activeButton) return;
+
+    const centeredScrollLeft = activeButton.offsetLeft
+      - (pagination.clientWidth - activeButton.offsetWidth) / 2;
+    pagination.scrollTo({
+      left: centeredScrollLeft,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+    });
+  }, [activeProjectIndex]);
 
   return (
     <section className="section work" id="work">
@@ -685,11 +699,12 @@ function Work() {
             </article>
           )}
         />
-        <div className="project-pagination" aria-label="选择精选项目">
+        <div ref={paginationRef} className="project-pagination" aria-label="选择精选项目">
           {projects.map((project, index) => (
             <button
               key={project.id}
               type="button"
+              data-project-index={index}
               className={activeProjectIndex === index ? "is-active" : ""}
               aria-label={`查看第${project.id}个项目：${project.title}`}
               aria-current={activeProjectIndex === index ? "true" : undefined}
