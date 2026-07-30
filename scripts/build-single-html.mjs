@@ -54,6 +54,7 @@ for (const assetUrl of assetUrls) {
 javascript = javascript.replaceAll("</script", "<\\/script");
 html = html.replace(styleMatch[0], () => `<style>${css}</style>`);
 html = html.replace(scriptMatch[0], () => `<script type="module">${javascript}</script>`);
+html = html.replace(/<link[^>]+rel="preload"[^>]+href="\/assets\/[^"]+"[^>]*>\s*/g, "");
 html = html.replace(
   "</head>",
   '<meta name="offline-bundle" content="All scripts, styles, images and video are embedded" />\n  </head>',

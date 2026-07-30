@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   ArrowDown,
@@ -316,13 +316,37 @@ function Header({ isDocked }) {
 
 function Hero() {
   const videoRef = useRef(null);
+  const [videoSourceReady, setVideoSourceReady] = useState(false);
   const [playbackBlocked, setPlaybackBlocked] = useState(false);
 
   useEffect(() => {
+    let idleId;
+    let timeoutId;
+
+    const allowVideoLoad = () => {
+      if ("requestIdleCallback" in window) {
+        idleId = window.requestIdleCallback(() => setVideoSourceReady(true), { timeout: 1200 });
+      } else {
+        timeoutId = window.setTimeout(() => setVideoSourceReady(true), 320);
+      }
+    };
+
+    if (document.readyState === "complete") allowVideoLoad();
+    else window.addEventListener("load", allowVideoLoad, { once: true });
+
+    return () => {
+      window.removeEventListener("load", allowVideoLoad);
+      if (idleId) window.cancelIdleCallback(idleId);
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
     const video = videoRef.current;
-    if (!video) return undefined;
+    if (!video || !videoSourceReady) return undefined;
 
     const tryPlayback = () => {
+      video.load();
       const playback = video.play();
       if (playback && typeof playback.catch === "function") {
         playback
@@ -343,7 +367,7 @@ function Hero() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("pageshow", tryPlayback);
     };
-  }, []);
+  }, [videoSourceReady]);
 
   return (
     <section className="hero" id="top">
@@ -355,7 +379,7 @@ function Hero() {
         defaultMuted
         loop
         playsInline
-        preload="auto"
+        preload="metadata"
         poster="/assets/hero-rabbit-poster.jpg"
         aria-hidden="true"
         tabIndex="-1"
@@ -368,10 +392,10 @@ function Hero() {
         }}
         onPlaying={() => setPlaybackBlocked(false)}
       >
-        <source src="/assets/hero-rabbit-motion-v2.mp4" type="video/mp4" />
+        {videoSourceReady ? <source src="/assets/hero-rabbit-motion-v2.mp4" type="video/mp4" /> : null}
       </video>
       <div className="hero-shade" />
-      {playbackBlocked ? (
+      {videoSourceReady && playbackBlocked ? (
         <button
           className="hero-playback"
           type="button"
@@ -584,7 +608,18 @@ function ProjectModal({ project, onClose }) {
 }
 
 function Work() {
+  const galleryRef = useRef(null);
+  const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
+  const handleActiveProjectChange = useCallback((index) => {
+    setActiveProjectIndex(index);
+  }, []);
+  const openProject = useCallback((project) => {
+    setSelectedProject(project);
+  }, []);
+  const closeProject = useCallback(() => {
+    setSelectedProject(null);
+  }, []);
 
   return (
     <section className="section work" id="work">
@@ -597,11 +632,13 @@ function Work() {
           <TypeText text="HORIZONTAL ARCHIVE / 08 PROJECTS" speed={18} />
         </div>
         <CircularGallery
+          ref={galleryRef}
           className="project-list"
           items={projects}
           bend={1.55}
           scrollSpeed={1.35}
           scrollEase={0.065}
+          onActiveIndexChange={handleActiveProjectChange}
           renderItem={(project, _index, copy) => (
             <article
               className="project-card"
@@ -609,11 +646,11 @@ function Work() {
               role="button"
               aria-haspopup="dialog"
               aria-label={`打开${project.title}项目详情`}
-              onClick={() => setSelectedProject(project)}
+              onClick={() => openProject(project)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  setSelectedProject(project);
+                  openProject(project);
                 }
               }}
             >
@@ -621,9 +658,9 @@ function Work() {
                 <img
                   src={project.image}
                   alt={`${project.title} 项目视觉封面`}
-                  loading={copy === 1 ? "eager" : "lazy"}
+                  loading={copy === 1 && _index < 3 ? "eager" : "lazy"}
                   decoding="async"
-                  fetchPriority={copy === 1 ? "high" : "low"}
+                  fetchPriority={copy === 1 && _index < 3 ? "high" : "low"}
                 />
               </div>
               <div className="project-details">
@@ -648,12 +685,26 @@ function Work() {
             </article>
           )}
         />
+        <div className="project-pagination" aria-label="选择精选项目">
+          {projects.map((project, index) => (
+            <button
+              key={project.id}
+              type="button"
+              className={activeProjectIndex === index ? "is-active" : ""}
+              aria-label={`查看第${project.id}个项目：${project.title}`}
+              aria-current={activeProjectIndex === index ? "true" : undefined}
+              onClick={() => galleryRef.current?.goTo(index)}
+            >
+              {project.id}
+            </button>
+          ))}
+        </div>
       </div>
       {selectedProject ? (
         <ProjectModal
           key={selectedProject.id}
           project={selectedProject}
-          onClose={() => setSelectedProject(null)}
+          onClose={closeProject}
         />
       ) : null}
     </section>
@@ -691,9 +742,9 @@ function Capabilities() {
                 src={item.visual}
                 alt=""
                 aria-hidden="true"
-                loading="eager"
+                loading="lazy"
                 decoding="async"
-                fetchPriority="auto"
+                fetchPriority="low"
               />
             </article>
           ))}
@@ -715,7 +766,14 @@ function Contact() {
 
   return (
     <footer className="contact" id="contact">
-      <img className="contact-bg" src="/assets/signal-background.png" alt="" />
+      <img
+        className="contact-bg"
+        src="/assets/signal-background.png"
+        alt=""
+        loading="lazy"
+        decoding="async"
+        fetchPriority="low"
+      />
       <div className="frame contact-inner">
         <div className="contact-top">
           <TypeText text="/04" speed={30} />
@@ -739,6 +797,70 @@ function Contact() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function DeferredSiteBackground() {
+  const [enableWebGL, setEnableWebGL] = useState(false);
+
+  useEffect(() => {
+    const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const constrainedNetwork = connection?.saveData
+      || connection?.effectiveType === "slow-2g"
+      || connection?.effectiveType === "2g";
+    const mobileOrTouch = window.matchMedia("(max-width: 820px), (hover: none) and (pointer: coarse)").matches;
+
+    if (constrainedNetwork || mobileOrTouch) return undefined;
+
+    let idleId;
+    let timeoutId;
+    const start = () => {
+      if ("requestIdleCallback" in window) {
+        idleId = window.requestIdleCallback(() => setEnableWebGL(true), { timeout: 2600 });
+      } else {
+        timeoutId = window.setTimeout(() => setEnableWebGL(true), 1000);
+      }
+    };
+
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+
+    return () => {
+      window.removeEventListener("load", start);
+      if (idleId) window.cancelIdleCallback(idleId);
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  return (
+    <div className="site-grainient" aria-hidden="true">
+      {enableWebGL ? (
+        <Grainient
+          color1="#86c8ef"
+          color2="#02070c"
+          color3="#334d78"
+          timeSpeed={0.34}
+          colorBalance={-0.12}
+          warpStrength={1.18}
+          warpFrequency={4.2}
+          warpSpeed={1.45}
+          warpAmplitude={58}
+          blendAngle={-14}
+          blendSoftness={0.12}
+          rotationAmount={380}
+          noiseScale={1.8}
+          grainAmount={0.045}
+          grainScale={2.2}
+          grainAnimated
+          contrast={1.28}
+          gamma={0.94}
+          saturation={0.86}
+          centerX={0}
+          centerY={-0.02}
+          zoom={0.86}
+        />
+      ) : null}
+    </div>
   );
 }
 
@@ -798,32 +920,7 @@ export function App() {
         </div>
         <span className="opening-screen__rule" />
       </div>
-      <div className="site-grainient" aria-hidden="true">
-        <Grainient
-          color1="#86c8ef"
-          color2="#02070c"
-          color3="#334d78"
-          timeSpeed={0.34}
-          colorBalance={-0.12}
-          warpStrength={1.18}
-          warpFrequency={4.2}
-          warpSpeed={1.45}
-          warpAmplitude={58}
-          blendAngle={-14}
-          blendSoftness={0.12}
-          rotationAmount={380}
-          noiseScale={1.8}
-          grainAmount={0.045}
-          grainScale={2.2}
-          grainAnimated
-          contrast={1.28}
-          gamma={0.94}
-          saturation={0.86}
-          centerX={0}
-          centerY={-0.02}
-          zoom={0.86}
-        />
-      </div>
+      <DeferredSiteBackground />
       <GradualBlur
         target="page"
         position="top"
