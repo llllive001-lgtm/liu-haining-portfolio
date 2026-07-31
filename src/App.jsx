@@ -18,27 +18,30 @@ import CircularGallery from "./components/CircularGallery";
 import GradualBlur from "./components/GradualBlur";
 import usePortfolioMotion from "./hooks/usePortfolioMotion";
 
+// 资源路径前缀：本地开发为 "/"，GitHub Pages 部署为 "/liu-haining-portfolio/"
+const ASSET = import.meta.env.BASE_URL;
+
 const projects = [
   {
     id: "01",
     title: "爱医健康",
     type: "HEALTHCARE APP / UI/UX",
     year: "2025–2026",
-    image: "/assets/project-aiyi-cover.jpg",
+    image: `${ASSET}assets/project-aiyi-cover.jpg`,
     pages: [
-      "/assets/project-aiyi-page-01.jpg",
-      "/assets/project-aiyi-page-02.jpg",
-      "/assets/project-aiyi-page-03.jpg",
-      "/assets/project-aiyi-page-04.jpg",
-      "/assets/project-aiyi-page-05.jpg",
-      "/assets/project-aiyi-page-06.jpg",
-      "/assets/project-aiyi-page-07.jpg",
-      "/assets/project-aiyi-page-08.jpg",
-      "/assets/project-aiyi-page-09.jpg",
-      "/assets/project-aiyi-page-10.jpg",
-      "/assets/project-aiyi-page-11.jpg",
-      "/assets/project-aiyi-page-12.jpg",
-      "/assets/project-aiyi-page-13.jpg",
+      `${ASSET}assets/project-aiyi-page-01.jpg`,
+      `${ASSET}assets/project-aiyi-page-02.jpg`,
+      `${ASSET}assets/project-aiyi-page-03.jpg`,
+      `${ASSET}assets/project-aiyi-page-04.jpg`,
+      `${ASSET}assets/project-aiyi-page-05.jpg`,
+      `${ASSET}assets/project-aiyi-page-06.jpg`,
+      `${ASSET}assets/project-aiyi-page-07.jpg`,
+      `${ASSET}assets/project-aiyi-page-08.jpg`,
+      `${ASSET}assets/project-aiyi-page-09.jpg`,
+      `${ASSET}assets/project-aiyi-page-10.jpg`,
+      `${ASSET}assets/project-aiyi-page-11.jpg`,
+      `${ASSET}assets/project-aiyi-page-12.jpg`,
+      `${ASSET}assets/project-aiyi-page-13.jpg`,
     ],
     description: "围绕在线问诊、健康数据与家庭健康档案，打造更有陪伴感的移动医疗体验。",
   },
@@ -47,19 +50,19 @@ const projects = [
     title: "获客一下",
     type: "APP / PRODUCT DESIGN",
     year: "2022–2023",
-    image: "/assets/project-huoke-cover.jpg",
+    image: `${ASSET}assets/project-huoke-cover.jpg`,
     pages: [
-      "/assets/project-huoke-page-01.jpg",
-      "/assets/project-huoke-page-02.jpg",
-      "/assets/project-huoke-page-03.jpg",
-      "/assets/project-huoke-page-04.jpg",
-      "/assets/project-huoke-page-05.jpg",
-      "/assets/project-huoke-page-06.jpg",
-      "/assets/project-huoke-page-07.jpg",
-      "/assets/project-huoke-page-08.jpg",
-      "/assets/project-huoke-page-09.jpg",
-      "/assets/project-huoke-page-10.jpg",
-      "/assets/project-huoke-page-11.jpg",
+      `${ASSET}assets/project-huoke-page-01.jpg`,
+      `${ASSET}assets/project-huoke-page-02.jpg`,
+      `${ASSET}assets/project-huoke-page-03.jpg`,
+      `${ASSET}assets/project-huoke-page-04.jpg`,
+      `${ASSET}assets/project-huoke-page-05.jpg`,
+      `${ASSET}assets/project-huoke-page-06.jpg`,
+      `${ASSET}assets/project-huoke-page-07.jpg`,
+      `${ASSET}assets/project-huoke-page-08.jpg`,
+      `${ASSET}assets/project-huoke-page-09.jpg`,
+      `${ASSET}assets/project-huoke-page-10.jpg`,
+      `${ASSET}assets/project-huoke-page-11.jpg`,
     ],
     description: "面向管理培训行业的售课平台，从需求理解、原型推演到高保真 UI 与开发交付。",
   },
@@ -68,16 +71,16 @@ const projects = [
     title: "获客管理",
     type: "DATA APP / PRODUCT DESIGN",
     year: "2022–2023",
-    image: "/assets/project-huoke-admin-cover.jpg",
+    image: `${ASSET}assets/project-huoke-admin-cover.jpg`,
     pages: [
-      "/assets/project-huoke-admin-page-01.jpg",
-      "/assets/project-huoke-admin-page-02.jpg",
-      "/assets/project-huoke-admin-page-03.jpg",
-      "/assets/project-huoke-admin-page-04.jpg",
-      "/assets/project-huoke-admin-page-05.jpg",
-      "/assets/project-huoke-admin-page-06.jpg",
-      "/assets/project-huoke-admin-page-07.jpg",
-      "/assets/project-huoke-admin-page-08.jpg",
+      `${ASSET}assets/project-huoke-admin-page-01.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-02.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-03.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-04.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-05.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-06.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-07.jpg`,
+      `${ASSET}assets/project-huoke-admin-page-08.jpg`,
     ],
     description: "面向讲师与运营团队的数据管理工具，整合浏览、脱敏、评估与业务跟进流程。",
   },
@@ -86,20 +89,20 @@ const projects = [
     title: "伏羲云",
     type: "WEB / DESIGN SYSTEM",
     year: "2023–2025",
-    image: "/assets/project-fuxi-cover.jpg",
+    image: `${ASSET}assets/project-fuxi-cover.jpg`,
     pages: [
-      "/assets/project-fuxi-page-01.jpg",
-      "/assets/project-fuxi-page-02.jpg",
-      "/assets/project-fuxi-page-03.jpg",
-      "/assets/project-fuxi-page-04.jpg",
-      "/assets/project-fuxi-page-05.jpg",
-      "/assets/project-fuxi-page-06.jpg",
-      "/assets/project-fuxi-page-07.jpg",
-      "/assets/project-fuxi-page-08.jpg",
-      "/assets/project-fuxi-page-09.jpg",
-      "/assets/project-fuxi-page-10.jpg",
-      "/assets/project-fuxi-page-11.jpg",
-      "/assets/project-fuxi-page-12.jpg",
+      `${ASSET}assets/project-fuxi-page-01.jpg`,
+      `${ASSET}assets/project-fuxi-page-02.jpg`,
+      `${ASSET}assets/project-fuxi-page-03.jpg`,
+      `${ASSET}assets/project-fuxi-page-04.jpg`,
+      `${ASSET}assets/project-fuxi-page-05.jpg`,
+      `${ASSET}assets/project-fuxi-page-06.jpg`,
+      `${ASSET}assets/project-fuxi-page-07.jpg`,
+      `${ASSET}assets/project-fuxi-page-08.jpg`,
+      `${ASSET}assets/project-fuxi-page-09.jpg`,
+      `${ASSET}assets/project-fuxi-page-10.jpg`,
+      `${ASSET}assets/project-fuxi-page-11.jpg`,
+      `${ASSET}assets/project-fuxi-page-12.jpg`,
     ],
     description: "梳理 HOK 获客文化业务链路，统一高频列表、表单与数据展示场景。",
   },
@@ -108,18 +111,18 @@ const projects = [
     title: "奥世美",
     type: "WEB + APP / EXPERIENCE",
     year: "2024–2025",
-    image: "/assets/project-aoshimei-cover.jpg",
+    image: `${ASSET}assets/project-aoshimei-cover.jpg`,
     pages: [
-      "/assets/project-aoshimei-page-01.jpg",
-      "/assets/project-aoshimei-page-02.jpg",
-      "/assets/project-aoshimei-page-03.jpg",
-      "/assets/project-aoshimei-page-04.jpg",
-      "/assets/project-aoshimei-page-05.jpg",
-      "/assets/project-aoshimei-page-06.jpg",
-      "/assets/project-aoshimei-page-07.jpg",
-      "/assets/project-aoshimei-page-08.jpg",
-      "/assets/project-aoshimei-page-09.jpg",
-      "/assets/project-aoshimei-page-10.jpg",
+      `${ASSET}assets/project-aoshimei-page-01.jpg`,
+      `${ASSET}assets/project-aoshimei-page-02.jpg`,
+      `${ASSET}assets/project-aoshimei-page-03.jpg`,
+      `${ASSET}assets/project-aoshimei-page-04.jpg`,
+      `${ASSET}assets/project-aoshimei-page-05.jpg`,
+      `${ASSET}assets/project-aoshimei-page-06.jpg`,
+      `${ASSET}assets/project-aoshimei-page-07.jpg`,
+      `${ASSET}assets/project-aoshimei-page-08.jpg`,
+      `${ASSET}assets/project-aoshimei-page-09.jpg`,
+      `${ASSET}assets/project-aoshimei-page-10.jpg`,
     ],
     description: "为正畸牙科医生重构病例提交体验，降低制作周期并提升操作效率。",
   },
@@ -128,15 +131,15 @@ const projects = [
     title: "艺术家",
     type: "BRAND WEB / VISUAL DESIGN",
     year: "2022",
-    image: "/assets/project-art-furniture-cover.jpg",
+    image: `${ASSET}assets/project-art-furniture-cover.jpg`,
     pages: [
-      "/assets/project-artist-page-01.jpg",
-      "/assets/project-artist-page-02.jpg",
-      "/assets/project-artist-page-03.jpg",
-      "/assets/project-artist-page-04.jpg",
-      "/assets/project-artist-page-05.jpg",
-      "/assets/project-artist-page-06.jpg",
-      "/assets/project-artist-page-07.jpg",
+      `${ASSET}assets/project-artist-page-01.jpg`,
+      `${ASSET}assets/project-artist-page-02.jpg`,
+      `${ASSET}assets/project-artist-page-03.jpg`,
+      `${ASSET}assets/project-artist-page-04.jpg`,
+      `${ASSET}assets/project-artist-page-05.jpg`,
+      `${ASSET}assets/project-artist-page-06.jpg`,
+      `${ASSET}assets/project-artist-page-07.jpg`,
     ],
     description: "以克制的空间语言与暖色材质表达，完成艺术家具品牌网站的视觉与浏览体验。",
   },
@@ -145,14 +148,14 @@ const projects = [
     title: "OTD 3.0",
     type: "AUTOMOTIVE HMI / UI/UX",
     year: "2025",
-    image: "/assets/project-otd-cover.jpg",
+    image: `${ASSET}assets/project-otd-cover.jpg`,
     pages: [
-      "/assets/project-otd-page-01.jpg",
-      "/assets/project-otd-page-02.jpg",
-      "/assets/project-otd-page-03.jpg",
-      "/assets/project-otd-page-04.jpg",
-      "/assets/project-otd-page-05.jpg",
-      "/assets/project-otd-page-06.jpg",
+      `${ASSET}assets/project-otd-page-01.jpg`,
+      `${ASSET}assets/project-otd-page-02.jpg`,
+      `${ASSET}assets/project-otd-page-03.jpg`,
+      `${ASSET}assets/project-otd-page-04.jpg`,
+      `${ASSET}assets/project-otd-page-05.jpg`,
+      `${ASSET}assets/project-otd-page-06.jpg`,
     ],
     description: "面向海外市场的旗舰车载系统，负责从 0 到 1 的视觉系统与原型交互。",
   },
@@ -161,12 +164,12 @@ const projects = [
     title: "其他设计",
     type: "MOTORCYCLE HMI / UI DESIGN",
     year: "2025",
-    image: "/assets/project-moto-pno-cover.jpg",
+    image: `${ASSET}assets/project-moto-pno-cover.jpg`,
     pages: [
-      "/assets/project-other-page-01.jpg",
-      "/assets/project-other-page-02.jpg",
-      "/assets/project-other-page-03.jpg",
-      "/assets/project-other-page-04.jpg",
+      `${ASSET}assets/project-other-page-01.jpg`,
+      `${ASSET}assets/project-other-page-02.jpg`,
+      `${ASSET}assets/project-other-page-03.jpg`,
+      `${ASSET}assets/project-other-page-04.jpg`,
     ],
     description: "涵盖车载 PND、摩托车座舱与运营 H5，兼顾信息效率、视觉表达与落地体验。",
   },
@@ -174,35 +177,35 @@ const projects = [
 
 const capabilities = [
   {
-    visual: "/assets/capability-project-optimized.png",
+    visual: `${ASSET}assets/capability-project-optimized.png`,
     index: "01",
     category: "CORE",
     title: "完整项目主导能力",
     details: ["需求拆解与项目节奏规划", "跨阶段推进视觉落地", "把控质量、效率与交付结果"],
   },
   {
-    visual: "/assets/capability-system-optimized.png",
+    visual: `${ASSET}assets/capability-system-optimized.png`,
     index: "02",
     category: "CORE",
     title: "品牌与视觉系统搭建",
     details: ["品牌语言与视觉概念定义", "组件规范与设计系统沉淀", "建立一致、可扩展的体验秩序"],
   },
   {
-    visual: "/assets/capability-automotive-optimized.png",
+    visual: `${ASSET}assets/capability-automotive-optimized.png`,
     index: "03",
     category: "SYSTEM",
     title: "多端产品与车载 HMI",
     details: ["APP、Web 后台与跨屏产品", "驾驶场景与视线成本分析", "从概念视觉到交互原型"],
   },
   {
-    visual: "/assets/capability-ai-optimized.png",
+    visual: `${ASSET}assets/capability-ai-optimized.png`,
     index: "04",
     category: "SYSTEM",
     title: "AI 设计提效",
     details: ["AI 辅助视觉探索", "高效生成与方案验证", "保持一致的设计判断"],
   },
   {
-    visual: "/assets/capability-team-optimized.png",
+    visual: `${ASSET}assets/capability-team-optimized.png`,
     index: "05",
     category: "SYSTEM",
     title: "跨团队协作与交付",
@@ -380,7 +383,7 @@ function Hero() {
         loop
         playsInline
         preload="metadata"
-        poster="/assets/hero-rabbit-poster.jpg"
+        poster={ASSET + "assets/hero-rabbit-poster.jpg"}
         aria-hidden="true"
         tabIndex="-1"
         disablePictureInPicture
@@ -392,7 +395,7 @@ function Hero() {
         }}
         onPlaying={() => setPlaybackBlocked(false)}
       >
-        {videoSourceReady ? <source src="/assets/hero-rabbit-motion-v2.mp4" type="video/mp4" /> : null}
+        {videoSourceReady ? <source src={ASSET + "assets/hero-rabbit-motion-v2.mp4"} type="video/mp4" /> : null}
       </video>
       <div className="hero-shade" />
       {videoSourceReady && playbackBlocked ? (
@@ -471,7 +474,7 @@ function About() {
         <div className="profile-showcase">
           <ResumeGlow className="portrait-wrap profile-portrait">
             <img
-              src="/assets/profile-rabbit-optimized.jpg"
+              src={ASSET + "assets/profile-rabbit-optimized.jpg"}
               alt="刘海宁个人视觉形象：赛博机械白兔"
               loading="lazy"
               decoding="async"
@@ -783,7 +786,7 @@ function Contact() {
     <footer className="contact" id="contact">
       <img
         className="contact-bg"
-        src="/assets/signal-background.png"
+        src={ASSET + "assets/signal-background.png"}
         alt=""
         loading="lazy"
         decoding="async"
@@ -910,6 +913,13 @@ export function App() {
       window.removeEventListener("scroll", updateDockedState);
       window.removeEventListener("resize", updateDockedState);
     };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--signal-texture-url",
+      `url("${ASSET}assets/signal-background.png")`,
+    );
   }, []);
 
   useEffect(() => {

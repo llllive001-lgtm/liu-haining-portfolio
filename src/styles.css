@@ -1676,7 +1676,7 @@ body.project-modal-open {
   inset: 0;
   z-index: 100;
   pointer-events: none;
-  background-image: url("/assets/signal-background.png");
+  background-image: var(--signal-texture-url);
   background-size: 200px 114px;
   opacity: 0.14;
 }
