@@ -3,14 +3,19 @@ import "./CircularGallery.css";
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 const lerp = (from, to, ease) => from + (to - from) * ease;
+const modulo = (value, length) => ((value % length) + length) % length;
+const wrapOffset = (value, cycle) => modulo(value + cycle / 2, cycle) - cycle / 2;
 
 const CircularGallery = forwardRef(function CircularGallery({
   items = [],
+  initialIndex = 0,
   bend = 3,
   scrollSpeed = 2,
   scrollEase = 0.05,
   className = "",
+  paused = false,
   renderItem,
+  onReady,
   onActiveIndexChange,
 }, forwardedRef) {
   const containerRef = useRef(null);
@@ -19,8 +24,14 @@ const CircularGallery = forwardRef(function CircularGallery({
   const snapTimerRef = useRef(null);
   const suppressClickRef = useRef(false);
   const wakeAnimationRef = useRef(null);
-  const activeIndexRef = useRef(-1);
-  const scrollRef = useRef({ current: 0, target: 0, cycle: 0, step: 1 });
+  const activeIndexRef = useRef(initialIndex);
+  const scrollRef = useRef({
+    current: 0,
+    target: 0,
+    cycle: 0,
+    step: 1,
+    initialized: false,
+  });
   const dragRef = useRef({
     active: false,
     moved: false,
@@ -50,26 +61,18 @@ const CircularGallery = forwardRef(function CircularGallery({
 
   const moveByItems = (direction) => {
     const step = getStep();
-    scrollRef.current.target = Math.round(scrollRef.current.current / step) * step + direction * step;
+    scrollRef.current.target = Math.round(scrollRef.current.target / step) * step + direction * step;
     wakeAnimationRef.current?.();
   };
 
   const goToItem = (index) => {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
-
-    const matchingCards = Array.from(track.querySelectorAll(`[data-gallery-index="${index}"]`));
-    if (!matchingCards.length) return;
-
-    const centeredTargets = matchingCards.map(
-      (card) => card.offsetLeft + card.offsetWidth / 2 - container.clientWidth / 2,
-    );
-    scrollRef.current.target = centeredTargets.reduce((closest, candidate) => (
-      Math.abs(candidate - scrollRef.current.current) < Math.abs(closest - scrollRef.current.current)
-        ? candidate
-        : closest
-    ));
+    const { step } = scrollRef.current;
+    if (!step || !items.length) return;
+    const currentStep = Math.round(scrollRef.current.current / step);
+    const currentIndex = modulo(currentStep, items.length);
+    let delta = modulo(index - currentIndex, items.length);
+    if (delta > items.length / 2) delta -= items.length;
+    scrollRef.current.target = currentStep * step + delta * step;
     wakeAnimationRef.current?.();
   };
 
@@ -82,7 +85,7 @@ const CircularGallery = forwardRef(function CircularGallery({
   useEffect(() => {
     const container = containerRef.current;
     const track = trackRef.current;
-    if (!container || !track) return undefined;
+    if (!container || !track || !items.length) return undefined;
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const effectiveEase = reduceMotion ? 1 : scrollEase;
@@ -93,36 +96,19 @@ const CircularGallery = forwardRef(function CircularGallery({
     const updateBounds = () => {
       const nextStep = getStep();
       const nextCycle = nextStep * items.length;
-      const previousCycle = scrollRef.current.cycle;
       const previousStep = scrollRef.current.step;
 
-      if (!previousCycle) {
-        scrollRef.current.current = nextCycle;
-        scrollRef.current.target = nextCycle;
-      } else if (Math.abs(previousCycle - nextCycle) > 0.5) {
-        const currentOffset = (scrollRef.current.current - previousCycle) / previousStep;
-        const targetOffset = (scrollRef.current.target - previousCycle) / previousStep;
-        scrollRef.current.current = nextCycle + currentOffset * nextStep;
-        scrollRef.current.target = nextCycle + targetOffset * nextStep;
+      if (!scrollRef.current.initialized) {
+        scrollRef.current.current = initialIndex * nextStep;
+        scrollRef.current.target = initialIndex * nextStep;
+        scrollRef.current.initialized = true;
+      } else if (Math.abs(previousStep - nextStep) > 0.5) {
+        scrollRef.current.current = (scrollRef.current.current / previousStep) * nextStep;
+        scrollRef.current.target = (scrollRef.current.target / previousStep) * nextStep;
       }
 
       scrollRef.current.cycle = nextCycle;
       scrollRef.current.step = nextStep;
-    };
-
-    const normalizeLoop = () => {
-      const cycle = scrollRef.current.cycle;
-      if (!cycle) return;
-
-      while (scrollRef.current.current >= cycle * 1.5) {
-        scrollRef.current.current -= cycle;
-        scrollRef.current.target -= cycle;
-      }
-
-      while (scrollRef.current.current < cycle * 0.5) {
-        scrollRef.current.current += cycle;
-        scrollRef.current.target += cycle;
-      }
     };
 
     const updateItems = () => {
@@ -132,19 +118,23 @@ const CircularGallery = forwardRef(function CircularGallery({
       let closestDistance = Number.POSITIVE_INFINITY;
 
       cards.forEach((card) => {
-        const cardCenter = card.offsetLeft + card.offsetWidth / 2 - scrollRef.current.current;
-        const normalized = clamp((cardCenter - center) / center, -1.35, 1.35);
+        const index = Number.parseInt(card.dataset.galleryIndex, 10);
+        const offset = wrapOffset(
+          index * scrollRef.current.step - scrollRef.current.current,
+          scrollRef.current.cycle,
+        );
+        const normalized = clamp(offset / Math.max(center, 1), -1.35, 1.35);
         const distance = Math.abs(normalized);
-        const distanceInPixels = Math.abs(cardCenter - center);
         const curve = Math.pow(distance, 1.7) * effectiveBend * 44;
         const rotate = normalized * effectiveBend * 1.7;
         const depth = Math.max(0.9, 1 - distance * 0.055);
 
-        if (distanceInPixels < closestDistance) {
-          closestDistance = distanceInPixels;
-          closestIndex = Number.parseInt(card.dataset.galleryIndex, 10);
+        if (Math.abs(offset) < closestDistance) {
+          closestDistance = Math.abs(offset);
+          closestIndex = index;
         }
 
+        card.style.setProperty("--gallery-x", `${offset - card.offsetWidth / 2}px`);
         card.style.setProperty("--gallery-y", `${curve}px`);
         card.style.setProperty("--gallery-rotate", `${rotate}deg`);
         card.style.setProperty("--gallery-scale", depth.toFixed(3));
@@ -159,36 +149,38 @@ const CircularGallery = forwardRef(function CircularGallery({
 
     const update = () => {
       animationRef.current = null;
-      if (!isVisible || !isPageVisible) return;
-      scrollRef.current.current = lerp(scrollRef.current.current, scrollRef.current.target, effectiveEase);
+      if (!isVisible || !isPageVisible || paused) return;
+
+      scrollRef.current.current = lerp(
+        scrollRef.current.current,
+        scrollRef.current.target,
+        effectiveEase,
+      );
       if (Math.abs(scrollRef.current.target - scrollRef.current.current) < 0.05) {
         scrollRef.current.current = scrollRef.current.target;
       }
-      normalizeLoop();
-      track.style.transform = `translate3d(${-scrollRef.current.current}px, 0, 0)`;
+
       updateItems();
-      const isMoving = Math.abs(scrollRef.current.target - scrollRef.current.current) >= 0.05;
-      if (isMoving || dragRef.current.moved) {
+      if (Math.abs(scrollRef.current.target - scrollRef.current.current) >= 0.05 || dragRef.current.moved) {
         animationRef.current = window.requestAnimationFrame(update);
       }
     };
 
     const startAnimation = () => {
-      if (!animationRef.current && isVisible && isPageVisible) {
+      if (!animationRef.current && isVisible && isPageVisible && !paused) {
         animationRef.current = window.requestAnimationFrame(update);
       }
     };
     wakeAnimationRef.current = startAnimation;
 
     const stopAnimation = () => {
-      if (animationRef.current) {
-        window.cancelAnimationFrame(animationRef.current);
-        animationRef.current = null;
-      }
+      if (!animationRef.current) return;
+      window.cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
     };
 
     const onWheel = (event) => {
-      if (Math.abs(event.deltaX) < 1 && Math.abs(event.deltaY) < 1) return;
+      if (paused || (Math.abs(event.deltaX) < 1 && Math.abs(event.deltaY) < 1)) return;
       event.preventDefault();
       const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       scrollRef.current.target += delta * scrollSpeed * 0.55;
@@ -197,7 +189,7 @@ const CircularGallery = forwardRef(function CircularGallery({
     };
 
     const onPointerDown = (event) => {
-      if (event.pointerType === "mouse" && event.button !== 0) return;
+      if (paused || (event.pointerType === "mouse" && event.button !== 0)) return;
       dragRef.current = {
         active: true,
         moved: false,
@@ -209,12 +201,11 @@ const CircularGallery = forwardRef(function CircularGallery({
     };
 
     const onPointerMove = (event) => {
-      if (!dragRef.current.active) return;
+      if (!dragRef.current.active || paused) return;
       const movedBy = Math.abs(event.clientX - dragRef.current.startX);
       const dragThreshold = event.pointerType === "touch" ? 14 : 9;
 
       if (!dragRef.current.moved && movedBy < dragThreshold) return;
-
       if (!dragRef.current.moved) {
         dragRef.current.moved = true;
         dragRef.current.captured = true;
@@ -222,8 +213,8 @@ const CircularGallery = forwardRef(function CircularGallery({
         container.classList.add("is-dragging");
       }
 
-      const distance = (dragRef.current.startX - event.clientX) * scrollSpeed;
-      scrollRef.current.target = dragRef.current.startTarget + distance;
+      scrollRef.current.target = dragRef.current.startTarget
+        + (dragRef.current.startX - event.clientX) * scrollSpeed;
       startAnimation();
     };
 
@@ -256,6 +247,7 @@ const CircularGallery = forwardRef(function CircularGallery({
     };
 
     const onKeyDown = (event) => {
+      if (paused) return;
       if (event.key === "ArrowRight") {
         event.preventDefault();
         moveByItems(1);
@@ -264,20 +256,26 @@ const CircularGallery = forwardRef(function CircularGallery({
         moveByItems(-1);
       } else if (event.key === "Home") {
         event.preventDefault();
-        scrollRef.current.target = scrollRef.current.cycle;
+        goToItem(0);
       }
     };
 
     const resizeObserver = new ResizeObserver(() => {
       updateBounds();
+      updateItems();
       startAnimation();
     });
     resizeObserver.observe(container);
     resizeObserver.observe(track);
+
     const visibilityObserver = new IntersectionObserver(([entry]) => {
       isVisible = entry.isIntersecting;
-      if (isVisible) startAnimation();
-      else stopAnimation();
+      if (isVisible) {
+        updateItems();
+        startAnimation();
+      } else {
+        stopAnimation();
+      }
     }, { rootMargin: "180px 0px", threshold: 0 });
     visibilityObserver.observe(container);
 
@@ -289,8 +287,8 @@ const CircularGallery = forwardRef(function CircularGallery({
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     updateBounds();
-    track.style.transform = `translate3d(${-scrollRef.current.current}px, 0, 0)`;
     updateItems();
+    onReady?.();
 
     container.addEventListener("wheel", onWheel, { passive: false });
     container.addEventListener("pointerdown", onPointerDown);
@@ -301,7 +299,7 @@ const CircularGallery = forwardRef(function CircularGallery({
     container.addEventListener("keydown", onKeyDown);
 
     return () => {
-      window.cancelAnimationFrame(animationRef.current);
+      stopAnimation();
       window.clearTimeout(snapTimerRef.current);
       resizeObserver.disconnect();
       visibilityObserver.disconnect();
@@ -315,7 +313,7 @@ const CircularGallery = forwardRef(function CircularGallery({
       container.removeEventListener("click", onClickCapture, true);
       container.removeEventListener("keydown", onKeyDown);
     };
-  }, [bend, items, onActiveIndexChange, scrollEase, scrollSpeed]);
+  }, [bend, initialIndex, items, onActiveIndexChange, onReady, paused, scrollEase, scrollSpeed]);
 
   return (
     <div
@@ -326,17 +324,15 @@ const CircularGallery = forwardRef(function CircularGallery({
       aria-label="精选项目循环画廊，可拖拽、滚轮或使用左右方向键浏览"
     >
       <div className="circular-gallery__track" ref={trackRef}>
-        {[0, 1, 2].flatMap((copy) => items.map((item, index) => (
+        {items.map((item, index) => (
           <div
             className="circular-gallery__item"
-            data-gallery-copy={copy}
             data-gallery-index={index}
-            aria-hidden={copy === 1 ? undefined : "true"}
-            key={`${copy}-${item.id ?? index}`}
+            key={item.id ?? index}
           >
-            {renderItem ? renderItem(item, index, copy) : null}
+            {renderItem ? renderItem(item, index) : null}
           </div>
-        )))}
+        ))}
       </div>
     </div>
   );

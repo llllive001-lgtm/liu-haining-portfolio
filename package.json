@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:single": "pnpm run build && node scripts/build-single-html.mjs",
+    "build:single": "pnpm run build && vite build --mode single --outDir dist-single && node scripts/build-single-html.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

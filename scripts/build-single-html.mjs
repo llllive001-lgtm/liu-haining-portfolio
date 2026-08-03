@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const projectDirectory = path.resolve(scriptDirectory, "..");
-const distDirectory = path.join(projectDirectory, "dist");
+const distDirectory = path.join(projectDirectory, "dist-single");
 const publicDirectory = path.join(projectDirectory, "public");
 const outputPath = path.join(projectDirectory, "刘海宁-UI设计作品集-单文件.html");
 
@@ -17,6 +17,7 @@ const mimeTypes = {
   ".pdf": "application/pdf",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".webm": "video/webm",
   ".webp": "image/webp",
 };
 

@@ -1,10 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: process.env.VITE_BASE || "/",
   optimizeDeps: {
     include: ["react", "react-dom/client"],
+  },
+  build: {
+    rollupOptions: {
+      output: mode === "single" ? { inlineDynamicImports: true } : {},
+    },
   },
   server: {
     host: "0.0.0.0",
@@ -14,4 +19,4 @@ export default defineConfig({
     },
   },
   plugins: [react()],
-});
+}));

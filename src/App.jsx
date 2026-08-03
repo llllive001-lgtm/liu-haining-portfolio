@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUpRight,
@@ -10,38 +9,49 @@ import {
   X,
 } from "@phosphor-icons/react";
 import GlassSurface from "./components/GlassSurface";
-import Grainient from "./components/Grainient";
 import TextType from "./components/TextType";
 import BorderGlow from "./components/BorderGlow";
 import CountUp from "./components/CountUp";
-import CircularGallery from "./components/CircularGallery";
 import GradualBlur from "./components/GradualBlur";
 import usePortfolioMotion from "./hooks/usePortfolioMotion";
 
-// 资源路径前缀：本地开发为 "/"，GitHub Pages 部署为 "/liu-haining-portfolio/"
-const ASSET = import.meta.env.BASE_URL;
+const Grainient = lazy(() => import("./components/Grainient"));
+const CircularGallery = lazy(() => import("./components/CircularGallery"));
+const ProjectModal = lazy(() => import("./components/ProjectModal"));
 
-const projects = [
+const BASE_URL = import.meta.env.BASE_URL;
+const withBaseUrl = (path) => `${BASE_URL}${path.replace(/^\//, "")}`;
+const withBaseSrcSet = (srcSet) => srcSet
+  .split(",")
+  .map((candidate) => {
+    const [path, descriptor] = candidate.trim().split(/\s+/, 2);
+    return `${withBaseUrl(path)}${descriptor ? ` ${descriptor}` : ""}`;
+  })
+  .join(", ");
+
+const projectData = [
   {
     id: "01",
     title: "爱医健康",
     type: "HEALTHCARE APP / UI/UX",
     year: "2025–2026",
-    image: `${ASSET}assets/project-aiyi-cover.jpg`,
+    image: "/assets/project-aiyi-cover-800.webp",
+    imageSet: "/assets/project-aiyi-cover-800.webp 800w, /assets/project-aiyi-cover-1600.webp 1600w",
+    pageAspect: "8 / 9",
     pages: [
-      `${ASSET}assets/project-aiyi-page-01.jpg`,
-      `${ASSET}assets/project-aiyi-page-02.jpg`,
-      `${ASSET}assets/project-aiyi-page-03.jpg`,
-      `${ASSET}assets/project-aiyi-page-04.jpg`,
-      `${ASSET}assets/project-aiyi-page-05.jpg`,
-      `${ASSET}assets/project-aiyi-page-06.jpg`,
-      `${ASSET}assets/project-aiyi-page-07.jpg`,
-      `${ASSET}assets/project-aiyi-page-08.jpg`,
-      `${ASSET}assets/project-aiyi-page-09.jpg`,
-      `${ASSET}assets/project-aiyi-page-10.jpg`,
-      `${ASSET}assets/project-aiyi-page-11.jpg`,
-      `${ASSET}assets/project-aiyi-page-12.jpg`,
-      `${ASSET}assets/project-aiyi-page-13.jpg`,
+      "/assets/project-aiyi-page-01.jpg",
+      "/assets/project-aiyi-page-02.jpg",
+      "/assets/project-aiyi-page-03.jpg",
+      "/assets/project-aiyi-page-04.jpg",
+      "/assets/project-aiyi-page-05.jpg",
+      "/assets/project-aiyi-page-06.jpg",
+      "/assets/project-aiyi-page-07.jpg",
+      "/assets/project-aiyi-page-08.jpg",
+      "/assets/project-aiyi-page-09.jpg",
+      "/assets/project-aiyi-page-10.jpg",
+      "/assets/project-aiyi-page-11.jpg",
+      "/assets/project-aiyi-page-12.jpg",
+      "/assets/project-aiyi-page-13.jpg",
     ],
     description: "围绕在线问诊、健康数据与家庭健康档案，打造更有陪伴感的移动医疗体验。",
   },
@@ -50,19 +60,21 @@ const projects = [
     title: "获客一下",
     type: "APP / PRODUCT DESIGN",
     year: "2022–2023",
-    image: `${ASSET}assets/project-huoke-cover.jpg`,
+    image: "/assets/project-huoke-cover-800.webp",
+    imageSet: "/assets/project-huoke-cover-800.webp 800w, /assets/project-huoke-cover-1600.webp 1600w",
+    pageAspect: "1600 / 1967",
     pages: [
-      `${ASSET}assets/project-huoke-page-01.jpg`,
-      `${ASSET}assets/project-huoke-page-02.jpg`,
-      `${ASSET}assets/project-huoke-page-03.jpg`,
-      `${ASSET}assets/project-huoke-page-04.jpg`,
-      `${ASSET}assets/project-huoke-page-05.jpg`,
-      `${ASSET}assets/project-huoke-page-06.jpg`,
-      `${ASSET}assets/project-huoke-page-07.jpg`,
-      `${ASSET}assets/project-huoke-page-08.jpg`,
-      `${ASSET}assets/project-huoke-page-09.jpg`,
-      `${ASSET}assets/project-huoke-page-10.jpg`,
-      `${ASSET}assets/project-huoke-page-11.jpg`,
+      "/assets/project-huoke-page-01.jpg",
+      "/assets/project-huoke-page-02.jpg",
+      "/assets/project-huoke-page-03.jpg",
+      "/assets/project-huoke-page-04.jpg",
+      "/assets/project-huoke-page-05.jpg",
+      "/assets/project-huoke-page-06.jpg",
+      "/assets/project-huoke-page-07.jpg",
+      "/assets/project-huoke-page-08.jpg",
+      "/assets/project-huoke-page-09.jpg",
+      "/assets/project-huoke-page-10.jpg",
+      "/assets/project-huoke-page-11.jpg",
     ],
     description: "面向管理培训行业的售课平台，从需求理解、原型推演到高保真 UI 与开发交付。",
   },
@@ -71,16 +83,18 @@ const projects = [
     title: "获客管理",
     type: "DATA APP / PRODUCT DESIGN",
     year: "2022–2023",
-    image: `${ASSET}assets/project-huoke-admin-cover.jpg`,
+    image: "/assets/project-huoke-admin-cover-800.webp",
+    imageSet: "/assets/project-huoke-admin-cover-800.webp 800w, /assets/project-huoke-admin-cover-1600.webp 1600w",
+    pageAspect: "16 / 9",
     pages: [
-      `${ASSET}assets/project-huoke-admin-page-01.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-02.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-03.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-04.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-05.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-06.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-07.jpg`,
-      `${ASSET}assets/project-huoke-admin-page-08.jpg`,
+      "/assets/project-huoke-admin-page-01.jpg",
+      "/assets/project-huoke-admin-page-02.jpg",
+      "/assets/project-huoke-admin-page-03.jpg",
+      "/assets/project-huoke-admin-page-04.jpg",
+      "/assets/project-huoke-admin-page-05.jpg",
+      "/assets/project-huoke-admin-page-06.jpg",
+      "/assets/project-huoke-admin-page-07.jpg",
+      "/assets/project-huoke-admin-page-08.jpg",
     ],
     description: "面向讲师与运营团队的数据管理工具，整合浏览、脱敏、评估与业务跟进流程。",
   },
@@ -89,20 +103,22 @@ const projects = [
     title: "伏羲云",
     type: "WEB / DESIGN SYSTEM",
     year: "2023–2025",
-    image: `${ASSET}assets/project-fuxi-cover.jpg`,
+    image: "/assets/project-fuxi-cover-800.webp",
+    imageSet: "/assets/project-fuxi-cover-800.webp 800w, /assets/project-fuxi-cover-1600.webp 1600w",
+    pageAspect: "16 / 9",
     pages: [
-      `${ASSET}assets/project-fuxi-page-01.jpg`,
-      `${ASSET}assets/project-fuxi-page-02.jpg`,
-      `${ASSET}assets/project-fuxi-page-03.jpg`,
-      `${ASSET}assets/project-fuxi-page-04.jpg`,
-      `${ASSET}assets/project-fuxi-page-05.jpg`,
-      `${ASSET}assets/project-fuxi-page-06.jpg`,
-      `${ASSET}assets/project-fuxi-page-07.jpg`,
-      `${ASSET}assets/project-fuxi-page-08.jpg`,
-      `${ASSET}assets/project-fuxi-page-09.jpg`,
-      `${ASSET}assets/project-fuxi-page-10.jpg`,
-      `${ASSET}assets/project-fuxi-page-11.jpg`,
-      `${ASSET}assets/project-fuxi-page-12.jpg`,
+      "/assets/project-fuxi-page-01.jpg",
+      "/assets/project-fuxi-page-02.jpg",
+      "/assets/project-fuxi-page-03.jpg",
+      "/assets/project-fuxi-page-04.jpg",
+      "/assets/project-fuxi-page-05.jpg",
+      "/assets/project-fuxi-page-06.jpg",
+      "/assets/project-fuxi-page-07.jpg",
+      "/assets/project-fuxi-page-08.jpg",
+      "/assets/project-fuxi-page-09.jpg",
+      "/assets/project-fuxi-page-10.jpg",
+      "/assets/project-fuxi-page-11.jpg",
+      "/assets/project-fuxi-page-12.jpg",
     ],
     description: "梳理 HOK 获客文化业务链路，统一高频列表、表单与数据展示场景。",
   },
@@ -111,18 +127,20 @@ const projects = [
     title: "奥世美",
     type: "WEB + APP / EXPERIENCE",
     year: "2024–2025",
-    image: `${ASSET}assets/project-aoshimei-cover.jpg`,
+    image: "/assets/project-aoshimei-cover-800.webp",
+    imageSet: "/assets/project-aoshimei-cover-800.webp 800w, /assets/project-aoshimei-cover-1600.webp 1600w",
+    pageAspect: "16 / 9",
     pages: [
-      `${ASSET}assets/project-aoshimei-page-01.jpg`,
-      `${ASSET}assets/project-aoshimei-page-02.jpg`,
-      `${ASSET}assets/project-aoshimei-page-03.jpg`,
-      `${ASSET}assets/project-aoshimei-page-04.jpg`,
-      `${ASSET}assets/project-aoshimei-page-05.jpg`,
-      `${ASSET}assets/project-aoshimei-page-06.jpg`,
-      `${ASSET}assets/project-aoshimei-page-07.jpg`,
-      `${ASSET}assets/project-aoshimei-page-08.jpg`,
-      `${ASSET}assets/project-aoshimei-page-09.jpg`,
-      `${ASSET}assets/project-aoshimei-page-10.jpg`,
+      "/assets/project-aoshimei-page-01.jpg",
+      "/assets/project-aoshimei-page-02.jpg",
+      "/assets/project-aoshimei-page-03.jpg",
+      "/assets/project-aoshimei-page-04.jpg",
+      "/assets/project-aoshimei-page-05.jpg",
+      "/assets/project-aoshimei-page-06.jpg",
+      "/assets/project-aoshimei-page-07.jpg",
+      "/assets/project-aoshimei-page-08.jpg",
+      "/assets/project-aoshimei-page-09.jpg",
+      "/assets/project-aoshimei-page-10.jpg",
     ],
     description: "为正畸牙科医生重构病例提交体验，降低制作周期并提升操作效率。",
   },
@@ -131,15 +149,17 @@ const projects = [
     title: "艺术家",
     type: "BRAND WEB / VISUAL DESIGN",
     year: "2022",
-    image: `${ASSET}assets/project-art-furniture-cover.jpg`,
+    image: "/assets/project-artist-cover-800.webp",
+    imageSet: "/assets/project-artist-cover-800.webp 800w, /assets/project-artist-cover-1600.webp 1600w",
+    pageAspect: "16 / 9",
     pages: [
-      `${ASSET}assets/project-artist-page-01.jpg`,
-      `${ASSET}assets/project-artist-page-02.jpg`,
-      `${ASSET}assets/project-artist-page-03.jpg`,
-      `${ASSET}assets/project-artist-page-04.jpg`,
-      `${ASSET}assets/project-artist-page-05.jpg`,
-      `${ASSET}assets/project-artist-page-06.jpg`,
-      `${ASSET}assets/project-artist-page-07.jpg`,
+      "/assets/project-artist-page-01.jpg",
+      "/assets/project-artist-page-02.jpg",
+      "/assets/project-artist-page-03.jpg",
+      "/assets/project-artist-page-04.jpg",
+      "/assets/project-artist-page-05.jpg",
+      "/assets/project-artist-page-06.jpg",
+      "/assets/project-artist-page-07.jpg",
     ],
     description: "以克制的空间语言与暖色材质表达，完成艺术家具品牌网站的视觉与浏览体验。",
   },
@@ -148,14 +168,16 @@ const projects = [
     title: "OTD 3.0",
     type: "AUTOMOTIVE HMI / UI/UX",
     year: "2025",
-    image: `${ASSET}assets/project-otd-cover.jpg`,
+    image: "/assets/project-otd-cover-800.webp",
+    imageSet: "/assets/project-otd-cover-800.webp 800w, /assets/project-otd-cover-1600.webp 1600w",
+    pageAspect: "16 / 9",
     pages: [
-      `${ASSET}assets/project-otd-page-01.jpg`,
-      `${ASSET}assets/project-otd-page-02.jpg`,
-      `${ASSET}assets/project-otd-page-03.jpg`,
-      `${ASSET}assets/project-otd-page-04.jpg`,
-      `${ASSET}assets/project-otd-page-05.jpg`,
-      `${ASSET}assets/project-otd-page-06.jpg`,
+      "/assets/project-otd-page-01.jpg",
+      "/assets/project-otd-page-02.jpg",
+      "/assets/project-otd-page-03.jpg",
+      "/assets/project-otd-page-04.jpg",
+      "/assets/project-otd-page-05.jpg",
+      "/assets/project-otd-page-06.jpg",
     ],
     description: "面向海外市场的旗舰车载系统，负责从 0 到 1 的视觉系统与原型交互。",
   },
@@ -164,54 +186,68 @@ const projects = [
     title: "其他设计",
     type: "MOTORCYCLE HMI / UI DESIGN",
     year: "2025",
-    image: `${ASSET}assets/project-moto-pno-cover.jpg`,
+    image: "/assets/project-other-cover-800.webp",
+    imageSet: "/assets/project-other-cover-800.webp 800w, /assets/project-other-cover-1600.webp 1600w",
+    pageAspect: "16 / 9",
     pages: [
-      `${ASSET}assets/project-other-page-01.jpg`,
-      `${ASSET}assets/project-other-page-02.jpg`,
-      `${ASSET}assets/project-other-page-03.jpg`,
-      `${ASSET}assets/project-other-page-04.jpg`,
+      "/assets/project-other-page-01.jpg",
+      "/assets/project-other-page-02.jpg",
+      "/assets/project-other-page-03.jpg",
+      "/assets/project-other-page-04.jpg",
     ],
     description: "涵盖车载 PND、摩托车座舱与运营 H5，兼顾信息效率、视觉表达与落地体验。",
   },
 ];
 
-const capabilities = [
+const projects = projectData.map((project) => ({
+  ...project,
+  image: withBaseUrl(project.image),
+  imageSet: withBaseSrcSet(project.imageSet),
+  pages: project.pages.map(withBaseUrl),
+}));
+
+const capabilityData = [
   {
-    visual: `${ASSET}assets/capability-project-optimized.png`,
+    visual: "/assets/capability-project-optimized.webp",
     index: "01",
     category: "CORE",
     title: "完整项目主导能力",
     details: ["需求拆解与项目节奏规划", "跨阶段推进视觉落地", "把控质量、效率与交付结果"],
   },
   {
-    visual: `${ASSET}assets/capability-system-optimized.png`,
+    visual: "/assets/capability-system-optimized.webp",
     index: "02",
     category: "CORE",
     title: "品牌与视觉系统搭建",
     details: ["品牌语言与视觉概念定义", "组件规范与设计系统沉淀", "建立一致、可扩展的体验秩序"],
   },
   {
-    visual: `${ASSET}assets/capability-automotive-optimized.png`,
+    visual: "/assets/capability-automotive-optimized.webp",
     index: "03",
     category: "SYSTEM",
     title: "多端产品与车载 HMI",
     details: ["APP、Web 后台与跨屏产品", "驾驶场景与视线成本分析", "从概念视觉到交互原型"],
   },
   {
-    visual: `${ASSET}assets/capability-ai-optimized.png`,
+    visual: "/assets/capability-ai-optimized.webp",
     index: "04",
     category: "SYSTEM",
     title: "AI 设计提效",
     details: ["AI 辅助视觉探索", "高效生成与方案验证", "保持一致的设计判断"],
   },
   {
-    visual: `${ASSET}assets/capability-team-optimized.png`,
+    visual: "/assets/capability-team-optimized.webp",
     index: "05",
     category: "SYSTEM",
     title: "跨团队协作与交付",
     details: ["产品与研发协同评估", "设计走查与开发验收", "推动方案按节点上线"],
   },
 ];
+
+const capabilities = capabilityData.map((capability) => ({
+  ...capability,
+  visual: withBaseUrl(capability.visual),
+}));
 
 function TypeText({ text, as = "span", className = "", delay = 0, speed = 14, cursor = false, ...props }) {
   return (
@@ -317,9 +353,10 @@ function Header({ isDocked }) {
   );
 }
 
-function Hero() {
+function Hero({ paused = false }) {
   const videoRef = useRef(null);
   const [videoSourceReady, setVideoSourceReady] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
   const [playbackBlocked, setPlaybackBlocked] = useState(false);
 
   useEffect(() => {
@@ -328,9 +365,9 @@ function Hero() {
 
     const allowVideoLoad = () => {
       if ("requestIdleCallback" in window) {
-        idleId = window.requestIdleCallback(() => setVideoSourceReady(true), { timeout: 1200 });
+        idleId = window.requestIdleCallback(() => setVideoSourceReady(true), { timeout: 1800 });
       } else {
-        timeoutId = window.setTimeout(() => setVideoSourceReady(true), 320);
+        timeoutId = window.setTimeout(() => setVideoSourceReady(true), 900);
       }
     };
 
@@ -349,6 +386,7 @@ function Hero() {
     if (!video || !videoSourceReady) return undefined;
 
     const tryPlayback = () => {
+      if (paused || document.hidden) return;
       video.load();
       const playback = video.play();
       if (playback && typeof playback.catch === "function") {
@@ -359,31 +397,43 @@ function Hero() {
     };
 
     const onVisibilityChange = () => {
-      if (!document.hidden && video.paused) tryPlayback();
+      if (!document.hidden && video.paused && !paused) tryPlayback();
     };
 
-    tryPlayback();
+    if (paused) {
+      video.pause();
+      setVideoPlaying(false);
+    } else {
+      tryPlayback();
+    }
     document.addEventListener("visibilitychange", onVisibilityChange);
-    window.addEventListener("pageshow", tryPlayback);
 
     return () => {
       document.removeEventListener("visibilitychange", onVisibilityChange);
-      window.removeEventListener("pageshow", tryPlayback);
     };
-  }, [videoSourceReady]);
+  }, [paused, videoSourceReady]);
 
   return (
     <section className="hero" id="top">
+      <img
+        className={`hero-poster${videoPlaying ? " is-video-playing" : ""}`}
+        src={withBaseUrl("/assets/hero-rabbit-poster.webp")}
+        alt=""
+        aria-hidden="true"
+        width="1920"
+        height="1080"
+        decoding="sync"
+        fetchPriority="high"
+      />
       <video
         ref={videoRef}
-        className="hero-background"
+        className={`hero-background${videoPlaying ? " is-playing" : ""}`}
         autoPlay
         muted
         defaultMuted
         loop
         playsInline
-        preload="metadata"
-        poster={ASSET + "assets/hero-rabbit-poster.jpg"}
+        preload="none"
         aria-hidden="true"
         tabIndex="-1"
         disablePictureInPicture
@@ -393,9 +443,18 @@ function Hero() {
             playback.catch(() => setPlaybackBlocked(true));
           }
         }}
-        onPlaying={() => setPlaybackBlocked(false)}
+        onPlaying={() => {
+          setVideoPlaying(true);
+          setPlaybackBlocked(false);
+        }}
+        onPause={() => setVideoPlaying(false)}
       >
-        {videoSourceReady ? <source src={ASSET + "assets/hero-rabbit-motion-v2.mp4"} type="video/mp4" /> : null}
+        {videoSourceReady ? (
+          <>
+            <source src={withBaseUrl("/assets/hero-rabbit-optimized.webm")} type="video/webm" />
+            <source src={withBaseUrl("/assets/hero-rabbit-optimized.mp4")} type="video/mp4" />
+          </>
+        ) : null}
       </video>
       <div className="hero-shade" />
       {videoSourceReady && playbackBlocked ? (
@@ -474,7 +533,7 @@ function About() {
         <div className="profile-showcase">
           <ResumeGlow className="portrait-wrap profile-portrait">
             <img
-              src={ASSET + "assets/profile-rabbit-optimized.jpg"}
+              src={withBaseUrl("/assets/profile-rabbit-optimized.jpg")}
               alt="刘海宁个人视觉形象：赛博机械白兔"
               loading="lazy"
               decoding="async"
@@ -537,82 +596,12 @@ function About() {
   );
 }
 
-function ProjectModal({ project, onClose }) {
-  const dialogRef = useRef(null);
-
-  useEffect(() => {
-    const dialog = dialogRef.current;
-    if (!dialog) return undefined;
-
-    dialog.showModal();
-    document.body.classList.add("project-modal-open");
-
-    const handleCancel = (event) => {
-      event.preventDefault();
-      onClose();
-    };
-
-    dialog.addEventListener("cancel", handleCancel);
-
-    return () => {
-      dialog.removeEventListener("cancel", handleCancel);
-      document.body.classList.remove("project-modal-open");
-      if (dialog.open) dialog.close();
-    };
-  }, [onClose]);
-
-  return createPortal(
-    <dialog
-      className="project-modal"
-      ref={dialogRef}
-      aria-labelledby={`project-modal-title-${project.id}`}
-      onClick={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div className="project-modal__shell">
-        <header className="project-modal__header">
-          <div className="project-modal__identity">
-            <span>ARCHIVE {project.id}</span>
-            <div>
-              <h2 id={`project-modal-title-${project.id}`}>{project.title}</h2>
-              <p>{project.year} / {project.type}</p>
-            </div>
-          </div>
-          <div className="project-modal__actions">
-            <span className="project-modal__page-count">{String(project.pages.length).padStart(2, "0")} PAGES</span>
-            <button type="button" onClick={onClose} aria-label={`关闭${project.title}项目详情`} autoFocus>
-              <X size={22} />
-            </button>
-          </div>
-        </header>
-        <div
-          className="project-modal__viewer"
-          tabIndex="0"
-          aria-label={`${project.title}项目作品集，共${project.pages.length}页，可上下滚动查看`}
-        >
-          <div className="project-modal__pages">
-            {project.pages.map((page, index) => (
-              <figure className="project-modal__page" key={page}>
-                <img
-                  src={page}
-                  alt={`${project.title}项目第${index + 1}页`}
-                  loading={index < 2 ? "eager" : "lazy"}
-                  decoding="async"
-                />
-              </figure>
-            ))}
-          </div>
-        </div>
-      </div>
-    </dialog>,
-    document.body,
-  );
-}
-
-function Work() {
+function Work({ onModalChange }) {
+  const workRef = useRef(null);
   const galleryRef = useRef(null);
   const paginationRef = useRef(null);
+  const prefetchedPagesRef = useRef(new Set());
+  const [galleryReady, setGalleryReady] = useState(false);
   const [activeProjectIndex, setActiveProjectIndex] = useState(0);
   const [selectedProject, setSelectedProject] = useState(null);
   const handleActiveProjectChange = useCallback((index) => {
@@ -624,6 +613,38 @@ function Work() {
   const closeProject = useCallback(() => {
     setSelectedProject(null);
   }, []);
+  const revealGallery = useCallback(() => {
+    import("./hooks/portfolioMotionRuntime").then(({ revealProjectGallery }) => {
+      revealProjectGallery(workRef.current);
+    });
+  }, []);
+  const prefetchFirstPage = useCallback((project) => {
+    const firstPage = project.pages[0];
+    if (!firstPage || prefetchedPagesRef.current.has(firstPage)) return;
+    prefetchedPagesRef.current.add(firstPage);
+    const image = new Image();
+    image.decoding = "async";
+    image.src = firstPage;
+  }, []);
+
+  useEffect(() => {
+    const section = workRef.current;
+    if (!section) return undefined;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      setGalleryReady(true);
+      observer.disconnect();
+    }, { rootMargin: "700px 0px", threshold: 0 });
+
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    onModalChange?.(Boolean(selectedProject));
+    return () => onModalChange?.(false);
+  }, [onModalChange, selectedProject]);
 
   useEffect(() => {
     const pagination = paginationRef.current;
@@ -639,7 +660,7 @@ function Work() {
   }, [activeProjectIndex]);
 
   return (
-    <section className="section work" id="work">
+    <section ref={workRef} className="section work" id="work">
       <div className="frame">
         <SectionHeading
           title="SELECTED PROJECTS"
@@ -648,60 +669,75 @@ function Work() {
         <div className="project-gallery-toolbar">
           <TypeText text="HORIZONTAL ARCHIVE / 08 PROJECTS" speed={18} />
         </div>
-        <CircularGallery
-          ref={galleryRef}
-          className="project-list"
-          items={projects}
-          bend={1.55}
-          scrollSpeed={1.35}
-          scrollEase={0.065}
-          onActiveIndexChange={handleActiveProjectChange}
-          renderItem={(project, _index, copy) => (
-            <article
-              className="project-card"
-              tabIndex={copy === 1 ? 0 : -1}
-              role="button"
-              aria-haspopup="dialog"
-              aria-label={`打开${project.title}项目详情`}
-              onClick={() => openProject(project)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  openProject(project);
-                }
-              }}
-            >
-              <div className="project-media">
-                <img
-                  src={project.image}
-                  alt={`${project.title} 项目视觉封面`}
-                  loading={copy === 1 && _index < 3 ? "eager" : "lazy"}
-                  decoding="async"
-                  fetchPriority={copy === 1 && _index < 3 ? "high" : "low"}
-                />
-              </div>
-              <div className="project-details">
-                <div className="project-topline">
-                  <TypeText className="project-index" text={`ARCHIVE ${project.id}`} speed={26} />
-                  <TypeText text={project.year} delay={80} speed={20} />
-                </div>
-                <div className="project-copy">
-                  <div className="project-meta">
-                    <TypeText text={project.type} delay={140} speed={18} />
+        {!selectedProject && galleryReady ? (
+          <Suspense fallback={<div className="project-gallery-skeleton" aria-hidden="true" />}>
+            <CircularGallery
+              ref={galleryRef}
+              className="project-list"
+              items={projects}
+              initialIndex={activeProjectIndex}
+              bend={1.55}
+              scrollSpeed={1.35}
+              scrollEase={0.065}
+              onReady={revealGallery}
+              onActiveIndexChange={handleActiveProjectChange}
+              renderItem={(project) => (
+                <article
+                  className="project-card"
+                  tabIndex="0"
+                  role="button"
+                  aria-haspopup="dialog"
+                  aria-label={`打开${project.title}项目详情`}
+                  onMouseEnter={() => prefetchFirstPage(project)}
+                  onFocus={() => prefetchFirstPage(project)}
+                  onTouchStart={() => prefetchFirstPage(project)}
+                  onClick={() => openProject(project)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" || event.key === " ") {
+                      event.preventDefault();
+                      openProject(project);
+                    }
+                  }}
+                >
+                  <div className="project-media">
+                    <img
+                      src={project.image}
+                      srcSet={project.imageSet}
+                      sizes="(max-width: 760px) 88vw, (max-width: 1700px) 29vw, 540px"
+                      width="1600"
+                      height="900"
+                      alt={`${project.title} 项目视觉封面`}
+                      loading="lazy"
+                      decoding="async"
+                      fetchPriority="low"
+                    />
                   </div>
-                  <TypeText as="h3" text={project.title} delay={100} speed={32} />
-                  <TypeText
-                    as="p"
-                    className={project.id === "08" ? "project-description--single-line" : ""}
-                    text={project.description}
-                    delay={180}
-                    speed={10}
-                  />
-                </div>
-              </div>
-            </article>
-          )}
-        />
+                  <div className="project-details">
+                    <div className="project-topline">
+                      <TypeText className="project-index" text={`ARCHIVE ${project.id}`} speed={26} />
+                      <TypeText text={project.year} delay={80} speed={20} />
+                    </div>
+                    <div className="project-copy">
+                      <div className="project-meta">
+                        <TypeText text={project.type} delay={140} speed={18} />
+                      </div>
+                      <TypeText as="h3" text={project.title} delay={100} speed={32} />
+                      <TypeText
+                        as="p"
+                        className={project.id === "08" ? "project-description--single-line" : ""}
+                        text={project.description}
+                        delay={180}
+                        speed={10}
+                      />
+                    </div>
+                  </div>
+                </article>
+              )}
+            />
+          </Suspense>
+        ) : (
+          <div className="project-gallery-skeleton" aria-hidden="true" />
+        )}
         <div ref={paginationRef} className="project-pagination" aria-label="选择精选项目">
           {projects.map((project, index) => (
             <button
@@ -719,11 +755,13 @@ function Work() {
         </div>
       </div>
       {selectedProject ? (
-        <ProjectModal
-          key={selectedProject.id}
-          project={selectedProject}
-          onClose={closeProject}
-        />
+        <Suspense fallback={<div className="project-modal-pending" role="status">OPENING PROJECT</div>}>
+          <ProjectModal
+            key={selectedProject.id}
+            project={selectedProject}
+            onClose={closeProject}
+          />
+        </Suspense>
       ) : null}
     </section>
   );
@@ -786,7 +824,7 @@ function Contact() {
     <footer className="contact" id="contact">
       <img
         className="contact-bg"
-        src={ASSET + "assets/signal-background.png"}
+        src={withBaseUrl("/assets/signal-background.png")}
         alt=""
         loading="lazy"
         decoding="async"
@@ -818,7 +856,7 @@ function Contact() {
   );
 }
 
-function DeferredSiteBackground() {
+function DeferredSiteBackground({ paused = false }) {
   const [enableWebGL, setEnableWebGL] = useState(false);
 
   useEffect(() => {
@@ -852,31 +890,33 @@ function DeferredSiteBackground() {
 
   return (
     <div className="site-grainient" aria-hidden="true">
-      {enableWebGL ? (
-        <Grainient
-          color1="#86c8ef"
-          color2="#02070c"
-          color3="#334d78"
-          timeSpeed={0.34}
-          colorBalance={-0.12}
-          warpStrength={1.18}
-          warpFrequency={4.2}
-          warpSpeed={1.45}
-          warpAmplitude={58}
-          blendAngle={-14}
-          blendSoftness={0.12}
-          rotationAmount={380}
-          noiseScale={1.8}
-          grainAmount={0.045}
-          grainScale={2.2}
-          grainAnimated
-          contrast={1.28}
-          gamma={0.94}
-          saturation={0.86}
-          centerX={0}
-          centerY={-0.02}
-          zoom={0.86}
-        />
+      {enableWebGL && !paused ? (
+        <Suspense fallback={null}>
+          <Grainient
+            color1="#86c8ef"
+            color2="#02070c"
+            color3="#334d78"
+            timeSpeed={0.34}
+            colorBalance={-0.12}
+            warpStrength={1.18}
+            warpFrequency={4.2}
+            warpSpeed={1.45}
+            warpAmplitude={58}
+            blendAngle={-14}
+            blendSoftness={0.12}
+            rotationAmount={380}
+            noiseScale={1.8}
+            grainAmount={0.045}
+            grainScale={2.2}
+            grainAnimated
+            contrast={1.28}
+            gamma={0.94}
+            saturation={0.86}
+            centerX={0}
+            centerY={-0.02}
+            zoom={0.86}
+          />
+        </Suspense>
       ) : null}
     </div>
   );
@@ -885,9 +925,12 @@ function DeferredSiteBackground() {
 export function App() {
   const rootRef = useRef(null);
   const [isDocked, setIsDocked] = useState(false);
-  usePortfolioMotion(rootRef);
+  const [isProjectOpen, setIsProjectOpen] = useState(false);
+  const handleModalChange = useCallback((isOpen) => setIsProjectOpen(isOpen), []);
+  usePortfolioMotion(rootRef, isProjectOpen);
 
   useEffect(() => {
+    if (isProjectOpen) return undefined;
     let frameId;
     let lastDockedState;
 
@@ -913,14 +956,7 @@ export function App() {
       window.removeEventListener("scroll", updateDockedState);
       window.removeEventListener("resize", updateDockedState);
     };
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.style.setProperty(
-      "--signal-texture-url",
-      `url("${ASSET}assets/signal-background.png")`,
-    );
-  }, []);
+  }, [isProjectOpen]);
 
   useEffect(() => {
     const onKeyDown = (event) => {
@@ -930,6 +966,15 @@ export function App() {
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--signal-texture-url",
+      `url("${withBaseUrl("/assets/signal-background.png")}")`,
+    );
+
+    return () => document.documentElement.style.removeProperty("--signal-texture-url");
   }, []);
 
   return (
@@ -945,7 +990,7 @@ export function App() {
         </div>
         <span className="opening-screen__rule" />
       </div>
-      <DeferredSiteBackground />
+      <DeferredSiteBackground paused={isProjectOpen} />
       <GradualBlur
         target="page"
         position="top"
@@ -965,9 +1010,9 @@ export function App() {
         }}
       />
       <Header isDocked={isDocked} />
-      <Hero />
+      <Hero paused={isProjectOpen} />
       <About />
-      <Work />
+      <Work onModalChange={handleModalChange} />
       <Capabilities />
       <Contact />
     </main>
