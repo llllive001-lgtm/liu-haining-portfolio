@@ -20,7 +20,9 @@ export function setupPortfolioMotion(root) {
       });
 
       media.add("(prefers-reduced-motion: no-preference)", () => {
-        document.body.classList.add("motion-enabled", "motion-lock");
+        const mobileSafeMode = window.matchMedia("(max-width: 820px), (hover: none) and (pointer: coarse)").matches;
+        document.body.classList.add("motion-enabled");
+        if (!mobileSafeMode) document.body.classList.add("motion-lock");
 
         ScrollTrigger.config({
           limitCallbacks: true,

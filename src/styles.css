@@ -30,6 +30,7 @@ body {
 }
 
 body.motion-lock {
+  height: 100vh;
   height: 100svh;
   overflow: hidden;
 }
@@ -172,6 +173,7 @@ button { font: inherit; }
 .hero {
   --hero-ice: #e6f3ff;
   --hero-blue: #abd6ff;
+  min-height: 100vh;
   min-height: 100svh;
   position: relative;
   overflow: hidden;
@@ -468,6 +470,7 @@ button { font: inherit; }
 }
 
 .hero-layout {
+  min-height: calc(100vh - 72px);
   min-height: calc(100svh - 72px);
   margin-top: 72px;
   position: relative;
@@ -1196,6 +1199,7 @@ body.project-modal-open {
 
 .project-modal {
   width: min(84vw, 1420px);
+  height: min(86vh, 920px);
   height: min(86svh, 920px);
   max-width: none;
   max-height: none;
@@ -1640,6 +1644,7 @@ body.project-modal-open {
 }
 
 .contact {
+  min-height: 100vh;
   min-height: 100svh;
   position: relative;
   overflow: hidden;
@@ -1662,6 +1667,7 @@ body.project-modal-open {
 }
 
 .contact-inner {
+  min-height: 100vh;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -1824,7 +1830,10 @@ body.project-modal-open {
     box-shadow: 0 22px 52px rgba(0, 5, 14, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
   .nav a, .nav-contact { min-height: 52px; padding: 16px; border-bottom: 1px solid var(--line); }
-  .hero-layout { min-height: calc(100svh - 72px); }
+  .hero-layout {
+    min-height: calc(100vh - 72px);
+    min-height: calc(100svh - 72px);
+  }
   .hero-title { font-size: clamp(44px, 14vw, 72px); }
   .hero-title-left { top: 9%; }
   .hero-title-right { bottom: 15%; }
@@ -1887,6 +1896,7 @@ body.project-modal-open {
   }
   .project-modal {
     width: calc(100vw - 16px);
+    height: calc(100vh - 16px);
     height: calc(100svh - 16px);
   }
   .project-modal__header {

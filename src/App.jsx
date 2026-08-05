@@ -415,16 +415,19 @@ function Hero({ paused = false }) {
 
   return (
     <section className="hero" id="top">
-      <img
-        className={`hero-poster${videoPlaying ? " is-video-playing" : ""}`}
-        src={withBaseUrl("/assets/hero-rabbit-poster.webp")}
-        alt=""
-        aria-hidden="true"
-        width="1920"
-        height="1080"
-        decoding="sync"
-        fetchPriority="high"
-      />
+      <picture>
+        <source srcSet={withBaseUrl("/assets/hero-rabbit-poster.webp")} type="image/webp" />
+        <img
+          className={`hero-poster${videoPlaying ? " is-video-playing" : ""}`}
+          src={withBaseUrl("/assets/hero-rabbit-poster.jpg")}
+          alt=""
+          aria-hidden="true"
+          width="1920"
+          height="1080"
+          decoding="sync"
+          fetchPriority="high"
+        />
+      </picture>
       <video
         ref={videoRef}
         className={`hero-background${videoPlaying ? " is-playing" : ""}`}
