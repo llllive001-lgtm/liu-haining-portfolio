@@ -932,7 +932,7 @@ button { font: inherit; }
   letter-spacing: 0.16em;
 }
 
-.project-list {
+.project-list.circular-gallery {
   --gallery-card-width: clamp(280px, 29vw, 540px);
   width: 100vw;
   height: clamp(270px, 23vw, 440px);
@@ -1774,7 +1774,7 @@ body.project-modal-open {
   .profile-summary .border-glow-inner { padding: 42px; }
   .profile-stats > div { padding: 24px; }
   .about-grid { grid-template-columns: minmax(280px, 0.72fr) 1fr; gap: 48px; }
-  .project-list {
+  .project-list.circular-gallery {
     --gallery-card-width: 29vw;
     height: clamp(270px, 28vw, 330px);
   }
@@ -1855,14 +1855,18 @@ body.project-modal-open {
   .stats strong { font-size: clamp(38px, 12vw, 64px); }
   .project-gallery-toolbar { min-height: 46px; margin-bottom: 16px; }
   .project-gallery-toolbar > .text-type { display: none; }
-  .project-list {
-    --gallery-card-width: 88vw;
+  .project-list.circular-gallery {
+    --gallery-card-width: min(78vw, 420px);
+    --gallery-gap: 14px;
+    left: 50%;
+    width: 100vw;
+    margin-left: -50vw;
     height: max(300px, 52vw);
   }
   .project-gallery-skeleton {
     height: max(300px, 52vw);
   }
-  .project-list .circular-gallery__track { gap: 14px; }
+  .project-list .circular-gallery__track { gap: var(--gallery-gap); }
   .project-card { width: 100%; min-height: 0; }
   .project-media { inset: 0; min-height: 0; aspect-ratio: auto; border: 0; }
   .project-details { min-height: 0; padding: 24px; }

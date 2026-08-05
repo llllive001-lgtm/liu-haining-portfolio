@@ -703,7 +703,7 @@ function Work({ onModalChange }) {
                     <img
                       src={project.image}
                       srcSet={project.imageSet}
-                      sizes="(max-width: 760px) 88vw, (max-width: 1700px) 29vw, 540px"
+                      sizes="(max-width: 760px) 78vw, (max-width: 1700px) 29vw, 540px"
                       width="1600"
                       height="900"
                       alt={`${project.title} 项目视觉封面`}
